@@ -94,8 +94,10 @@ def help(event, key=None):
         user_name=profile.display_name
         s_mang = Story_Manager(user_name)
         story_id = db.get_storyid_by_userid(user_id)
-        ok = s_mang.check_answer(event, story_id, "", force_correct=True)
         end = s_mang.is_end_story(story_id)
+        if end:
+            return
+        ok = s_mang.check_answer(event, story_id, "", force_correct=True)
         if ok and not end:
             next_story = s_mang.next_story(story_id)
             db.update_story_id(user_id, next_story.id)
