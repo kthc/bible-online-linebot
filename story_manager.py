@@ -59,8 +59,8 @@ class Story_Manager:
             story.Question6_a(),
             story.Question6_b(q6_uuid=self.q6_uuid),
             story.Question6_b_1(q6_uuid=self.q6_uuid),
-            story.simple_msg_maker(11, msg='同學補充說：和散那就是由Yasha(拯救、交付)以及Anna(懇求)這兩個希伯來語組成的，意思是"我求你來拯救"', button_label='天啊！', text_after_clicked='他出的也太複雜了吧!\n但很有深度耶!'),
-            story.simple_msg_maker(12, msg='😥對啊！我都解崩潰了，還是沒頭緒\n我覺得可以來收尾了！', button_label='對阿！', text_after_clicked='已經有不少素材了!'),
+            story.simple_msg_maker(16, msg='同學補充說：和散那就是由Yasha(拯救、交付)以及Anna(懇求)這兩個希伯來語組成的，意思是"我求你來拯救"', button_label='天啊！', text_after_clicked='他出的也太複雜了吧!\n但很有深度耶!'),
+            story.simple_msg_maker(17, msg='😥對啊！我都解崩潰了，還是沒頭緒\n我覺得可以來收尾了！', button_label='對阿！', text_after_clicked='已經有不少素材了!'),
             story.Ending()
         ]
         self.user_name = user_name
