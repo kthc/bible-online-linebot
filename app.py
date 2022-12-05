@@ -2,6 +2,9 @@
 聖經OnLine v1.0
 '''
 import os
+from dotenv import load_dotenv
+load_dotenv()
+
 from bible_database import db
 from flask import Flask, request, abort
 from app_global import line_bot_api, handler
@@ -20,10 +23,6 @@ from linebot.models import (
     PostbackEvent,
     FollowEvent
 )
-# from waitress import serve
-from dotenv import load_dotenv
-
-load_dotenv()
 
 app = Flask(__name__)
 
@@ -95,6 +94,8 @@ def handle_postback_event(event):
     bypass = ['$Q3_Bypass', '$Q5_Bypass']
     if event.postback.data in bypass:
         pass
+    elif event.postback.data == '$Q6_reset':
+        called_helper = help(event, key='-force-prev')
     else:
         check_if_can_go_next_story(event, event.postback.data)
 

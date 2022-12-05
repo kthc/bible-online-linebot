@@ -65,5 +65,8 @@ video_dict = {
 
 img_dict = {
     'Q1':  {'url': f"{APP_URL}/static/img/Q1_handwritten_note.jpg", 'preview': f"{APP_URL}/static/img/Q1_handwritten_note.jpg"},
-    'Q2':  {'url': f"{APP_URL}/static/img/Q2.jpg", 'preview': f"{APP_URL}/static/img/Q2.jpg"},
+    'Q6_normal':  {'url': f"{APP_URL}/static/img/Q6_normal.jpg", 'preview': f"{APP_URL}/static/img/Q6_normal.jpg"},
+    'Q6_challeng':  {'url': f"{APP_URL}/static/img/Q6_challeng.jpg", 'preview': f"{APP_URL}/static/img/Q6_challeng.jpg"},
+    'Q6_normal_grid':  {'url': f"{APP_URL}/static/img/Q6_normal_grid.jpg", 'preview': f"{APP_URL}/static/img/Q6_normal_grid.jpg"},
+    'Q6_challeng_grid':  {'url': f"{APP_URL}/static/img/Q6_challeng_grid.jpg", 'preview': f"{APP_URL}/static/img/Q6_challeng_grid.jpg"},
 }
