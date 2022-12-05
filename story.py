@@ -395,6 +395,69 @@ class Question4(Story):
         return picture + main_msg
 
 
+
+class Question5(Story):
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(args, kwargs)
+        self.id = 500
+        self.story_name = '先知'
+        self.pre_messages = [
+            f'''沒啦，剛好才思泉湧，就做出來了''',
+            f'''你再幫我檢查看看有沒有bug'''
+            ]
+        self.post_messages = []
+        self.main_messages = ''
+        self.ans = '以力殺'
+        self.reply_messages_wrong = [
+            "為了防止猜題的可能，請輸入實際解出的國字唷",
+            "怎麼感覺哪裡怪怪的，再想一下好了"
+            ]
+    
+    def get_main_message(self):
+        return [
+            ImageSendMessage(original_content_url = f"{APP_URL}/static/img/Q5_parables_prophet.png", preview_image_url = f"{APP_URL}/static/img/5_parables_prophet.png")
+            ]
+
+    def check_ans(self, ans, force_correct=False, retry_count=0):
+        '''return (True, Messages:list), Message is empty list if ans is correct, otherwise need to throw error message to reply to linbot'''
+        if self.ans == ans or force_correct:
+            return True, [TextSendMessage(text=msg) for msg in self.post_messages]
+        
+        elif ans == '以利沙':
+            return False, [TextSendMessage(text=self.reply_messages_wrong[0])]
+        else:
+            return False, [TextSendMessage(text=self.reply_messages_wrong[1])]
+
+class Question6_a(Story):
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(args, kwargs)
+        self.id = 600
+        self.story_name = '拯救者(a)'
+        self.pre_messages = [
+            f'''不愧是我同學，竟然有兩個小題！''',
+            f'''同學表示：背景是在耶穌進城的當下，群眾呼喊著“和散那”。而題組就藏著“和散那”的秘密！ (答案非英文單字)'''
+            ]
+        self.post_messages = [
+            '''答對了\n耶！''',
+            '''但好像要解出第二小題才能真正看出秘密?'''
+            ]
+        self.main_messages = ''
+        self.ans = 'yasha'
+        self.reply_messages_wrong = ["怎麼感覺哪裡怪怪的，再想一下好了"]
+    
+    def get_main_message(self):
+        return [
+            ImageSendMessage(original_content_url = f"{APP_URL}/static/img/6_a_Hosannah_Com.png", preview_image_url = f"{APP_URL}/static/img/6_a_Hosannah_Com.png")
+            ]
+
+    def check_ans(self, ans, force_correct=False, retry_count=0):
+        '''return (True, Messages:list), Message is empty list if ans is correct, otherwise need to throw error message to reply to linbot'''
+        if self.ans == ans.lower() or force_correct:
+            return True, [TextSendMessage(text=msg) for msg in self.post_messages]
+        else:
+            return False, [TextSendMessage(text=msg) for msg in self.reply_messages_wrong]
+
+
 class Question6_b(Story):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(args, kwargs)
@@ -460,67 +523,6 @@ class Question6_b(Story):
             STORY_GLOBAL[self.q6_uuid] = 2
             return True, [TextSendMessage(text=self.post_messages[1])]
 
-class Question5(Story):
-    def __init__(self, *args, **kwargs) -> None:
-        super().__init__(args, kwargs)
-        self.id = 500
-        self.story_name = '先知'
-        self.pre_messages = [
-            f'''沒啦，剛好才思泉湧，就做出來了''',
-            f'''你再幫我檢查看看有沒有bug'''
-            ]
-        self.post_messages = []
-        self.main_messages = ''
-        self.ans = '以力殺'
-        self.reply_messages_wrong = [
-            "為了防止猜題的可能，請輸入實際解出的國字唷",
-            "怎麼感覺哪裡怪怪的，再想一下好了"
-            ]
-    
-    def get_main_message(self):
-        return [
-            ImageSendMessage(original_content_url = f"{APP_URL}/static/img/Q5_parables_prophet.png", preview_image_url = f"{APP_URL}/static/img/5_parables_prophet.png")
-            ]
-
-    def check_ans(self, ans, force_correct=False, retry_count=0):
-        '''return (True, Messages:list), Message is empty list if ans is correct, otherwise need to throw error message to reply to linbot'''
-        if self.ans == ans or force_correct:
-            return True, [TextSendMessage(text=msg) for msg in self.post_messages]
-        
-        elif ans == '以利沙':
-            return False, [TextSendMessage(text=self.reply_messages_wrong[0])]
-        else:
-            return False, [TextSendMessage(text=self.reply_messages_wrong[1])]
-
-class Question6_a(Story):
-    def __init__(self, *args, **kwargs) -> None:
-        super().__init__(args, kwargs)
-        self.id = 600
-        self.story_name = '拯救者(a)'
-        self.pre_messages = [
-            f'''不愧是我同學，竟然有兩個小題！''',
-            f'''同學表示：背景是在耶穌進城的當下，群眾呼喊著“和散那”。而題組就藏著“和散那”的秘密！ (答案非英文單字)'''
-            ]
-        self.post_messages = [
-            '''答對了\n耶！''',
-            '''但好像要解出第二小題才能真正看出秘密?'''
-            ]
-        self.main_messages = ''
-        self.ans = 'yasha'
-        self.reply_messages_wrong = ["怎麼感覺哪裡怪怪的，再想一下好了"]
-    
-    def get_main_message(self):
-        return [
-            ImageSendMessage(original_content_url = f"{APP_URL}/static/img/6_a_Hosannah_Com.png", preview_image_url = f"{APP_URL}/static/img/6_a_Hosannah_Com.png")
-            ]
-
-    def check_ans(self, ans, force_correct=False, retry_count=0):
-        '''return (True, Messages:list), Message is empty list if ans is correct, otherwise need to throw error message to reply to linbot'''
-        if self.ans == ans.lower() or force_correct:
-            return True, [TextSendMessage(text=msg) for msg in self.post_messages]
-        else:
-            return False, [TextSendMessage(text=msg) for msg in self.reply_messages_wrong]
-
 class Question6_b_1(Story):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(args, kwargs)
@@ -556,7 +558,7 @@ class Question6_b_1(Story):
         global STORY_GLOBAL
         if force_correct:
             # force correct answer
-            return True, []
+            return True, [TextSendMessage(text=msg, sender=None) for msg in self.post_messages]
         if ans == 'anna' or ans == 'Anna':
             return True, [TextSendMessage(text=msg, sender=None) for msg in self.post_messages]
         if retry_count >= 5:
