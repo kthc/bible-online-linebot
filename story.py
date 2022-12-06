@@ -68,7 +68,13 @@ class Story:
             return True, [TextSendMessage(text=msg, sender=None) for msg in self.post_messages]
         else:
             return False, [TextSendMessage(text=msg, sender=None) for msg in self.reply_messages_wrong]
-
+    
+    def show_ans_if_force_correct(self, messages:list(TextSendMessage)=[], pre_text='正確答案是:'):
+        '''if messages not given, it will send the correct ans and post_messages of this instance'''
+        if len(messages)==0:
+            return True, [TextSendMessage(text=f'''{pre_text}{self.ans}''', sender=None)] + [TextSendMessage(text=msg, sender=None) for msg in self.post_messages]
+        else:
+            return True, messages
 
 class SimplePostbackStory(Story):
     def __init__(self, id, *args, msg='', button_label='', text_after_clicked='', sender_name='', **kwargs) -> None:
@@ -312,7 +318,7 @@ class Question1(Story):
         fixed_ans = re.sub(pattern, "，", ans)
         if force_correct:
             # force correct answer
-            return True, [TextSendMessage(text=msg) for msg in self.post_messages]
+            return self.show_ans_if_force_correct()
         if type(ans) is str:
             ans_list = fixed_ans.split("，")
             if len(ans_list) != 7:
@@ -372,6 +378,9 @@ class Question2(Story):
    
     def check_ans(self, ans, force_correct=False, retry_count=0):
         '''return (True, Messages:list), Message is empty list if ans is correct, otherwise need to throw error message to reply to linbot'''
+        if force_correct:
+            # force correct answer
+            return self.show_ans_if_force_correct()
         if ans == self.ans or force_correct:
             return True, [TextSendMessage(text=msg) for msg in self.post_messages]
         elif retry_count == 3:
@@ -382,6 +391,53 @@ class Question2(Story):
         else:
             # not matched any of ans
             return False, [TextSendMessage(text=self.reply_messages_wrong[0])]
+
+class Question3(Story):
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(args, kwargs)
+        self.id = 300
+        self.story_name = '新生王'
+        self.pre_messages = [
+            f'''是一個數獨的題目，看看你能不能解開天使的暗號''']
+        self.post_messages = [
+            '''不愧是我朋友，跟我一樣聰明😁''']  
+        self.main_messages = []
+        self.ans = '榮耀歸於新生王'
+        self.reply_messages_wrong = [
+            "答案沒有陷阱，真的只是一般字串啦~",
+            "怎麼感覺哪裡怪怪的，再想一下好了",
+            "好像有點眉目了！再接著想想",
+            "不是啦，這個不是天使說的暗號吧？再想想"
+            ]
+     
+    def get_main_message(self):
+        return [ImageSendMessage(original_content_url = f"{APP_URL}/static/img/3_New_born_king_sudoku.png", preview_image_url = f"{APP_URL}/static/img/3_New_born_king_sudoku.png", icon_url=f"{APP_URL}/static/img/icon_48x48.jpeg")]
+
+    def check_ans(self, ans, force_correct=False, retry_count=0):
+        '''return (True, Messages:list), Message is empty lst if ans is correct, otherwise need to throw error message to reply to linbot'''
+        if force_correct:
+            # force correct answer
+            return self.show_ans_if_force_correct()
+
+        if type(ans) is str:
+            # replace Chinese character for the same meaning
+            if ("于" in ans or "予" in ans or "與" in ans):            
+                ans = ans.replace('于','於')
+                ans = ans.replace('予','於')
+                ans = ans.replace('與','於')
+            if (ans==self.ans):
+                 #correct answer
+                return True, [TextSendMessage(text=msg) for msg in self.post_messages]
+            # is almost ready to get the correct ans
+            elif "聽啊天使高聲唱" in ans:   
+                return False, [TextSendMessage(text=self.reply_messages_wrong[3])]
+            # some match the keyword
+            elif ("聽啊" in ans or "天使" in ans or "高聲唱" in ans):  
+                return False, [TextSendMessage(text=self.reply_messages_wrong[2])]
+            else:
+            # is still far way from correct ans
+                return False, [TextSendMessage(text=self.reply_messages_wrong[1])]            
+        return False, [TextSendMessage(text=self.reply_messages_wrong[0])]
 
 class Question4(Story):
     def __init__(self, *args, **kwargs) -> None:
@@ -412,7 +468,7 @@ class Question4(Story):
                 check_sequence += 1
         if force_correct:
             # force correct answer
-            return True, [TextSendMessage(text=msg) for msg in self.post_messages]
+            return self.show_ans_if_force_correct()
         if type(ans) is str:
             if ans == self.ans:
                 return True, [TextSendMessage(text=msg) for msg in self.post_messages]
@@ -457,7 +513,10 @@ class Question5(Story):
 
     def check_ans(self, ans, force_correct=False, retry_count=0):
         '''return (True, Messages:list), Message is empty list if ans is correct, otherwise need to throw error message to reply to linbot'''
-        if self.ans == ans or force_correct:
+        if force_correct:
+            # force correct answer
+            return self.show_ans_if_force_correct()
+        if self.ans == ans:
             return True, [TextSendMessage(text=msg) for msg in self.post_messages]
         
         elif ans == '以利沙':
@@ -489,7 +548,10 @@ class Question6_a(Story):
 
     def check_ans(self, ans, force_correct=False, retry_count=0):
         '''return (True, Messages:list), Message is empty list if ans is correct, otherwise need to throw error message to reply to linbot'''
-        if self.ans == ans.lower() or force_correct:
+        if force_correct:
+            # force correct answer
+            return self.show_ans_if_force_correct()
+        if self.ans == ans.lower():
             return True, [TextSendMessage(text=msg) for msg in self.post_messages]
         else:
             return False, [TextSendMessage(text=msg) for msg in self.reply_messages_wrong]
@@ -595,7 +657,7 @@ class Question6_b_1(Story):
         global STORY_GLOBAL
         if force_correct:
             # force correct answer
-            return True, [TextSendMessage(text=msg, sender=None) for msg in self.post_messages]
+            return self.show_ans_if_force_correct()
         if ans == 'anna' or ans == 'Anna':
             return True, [TextSendMessage(text=msg, sender=None) for msg in self.post_messages]
         if retry_count >= 5:
@@ -640,7 +702,7 @@ class Question7(Story):
         '''return (True, Messages:list), Message is empty list if ans is correct, otherwise need to throw error message to reply to linbot'''
         if force_correct:
             # force correct answer
-            return True, [TextSendMessage(text=msg, sender=None) for msg in self.post_messages]
+            return self.show_ans_if_force_correct()
         if ans == self.ans:
             return True, [TextSendMessage(text=msg, sender=None) for msg in self.post_messages]
         return False, [TextSendMessage(text=self.reply_messages_wrong[0])]
@@ -650,13 +712,12 @@ class Ending(Story):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(args, kwargs)
         self.username = kwargs.get('username', '玩家')
-        self.id = 99
+        self.id = 990
         self.story_name = 'Ending'
         self.pre_messages = ['''這些素材真是太可以了!\n周六的小組有救了!''']
         self.post_messages = []
         self.main_messages = [
-            '''作為福利，我讓你搶先看週六小組的信息內容 (放牧師的講章連結)''',
-            "{placeholder for 奉獻資訊?}\n{placeholder for next episode?}"
+            '''作為福利，我讓你搶先看週六小組的信息內容 (放牧師的講章連結)'''
             ]
         self.ans = ''
         self.reply_messages_correct = []
@@ -665,7 +726,10 @@ class Ending(Story):
     def get_main_message(self):
         sticker = [StickerSendMessage(package_id=11537, sticker_id=52002745)]
         main_msg = [TextSendMessage(text=text) for text in self.main_messages]
-        return sticker + main_msg
+        images = [
+            ImageSendMessage(original_content_url = f"{APP_URL}/static/img/info.jpg", preview_image_url = f"{APP_URL}/static/img/info.jpg")
+            ]
+        return sticker + main_msg + images
     
     def check_ans(self, ans, force_correct=False, retry_count=0):
         '''return (True, Messages:list), Message is empty list if ans is correct, otherwise need to throw error message to reply to linbot'''

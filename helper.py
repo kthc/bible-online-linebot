@@ -36,9 +36,9 @@ from app_global import line_bot_api, APP_URL
 from story_manager import Story_Manager
 
 _HELP_DICT = {
-    "-reset": "重置你的ID，讓故事從頭開始",
+    "-reset / reset": "重置你的ID，讓故事從頭開始",
     "-stage": "列出你當前在哪個故事",
-    "-force-next": "強制跳下一關",
+    "-force-next / sos": "強制跳下一關",
     "-force-prev": "強制回上一關",                                                                                                                             
     "-test-img": "秀出測試image",                                                                                                                             
     "-test-audio": "秀出測試audio",                                                                                                                             
