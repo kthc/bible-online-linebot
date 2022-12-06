@@ -578,6 +578,37 @@ class Question6_b_1(Story):
             return False, [TextSendMessage(text=self.reply_messages_wrong[0])]
         return False, [TextSendMessage(text=self.reply_messages_wrong[0])]
 
+class Question7(Story):
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(args, kwargs)
+        self.id = 700
+        self.story_name = '出賣'
+        self.pre_messages = []
+        self.post_messages = ['真是太感謝你了！']
+        self.main_messages = ['我想想…用這個結尾如何？既然耶穌是主角，就要找到耶穌在客西馬尼園禱告的位置！','(請根據地圖上的標示輸入相同的文字)']
+        self.ans = '2'
+        self.reply_messages_wrong = [
+            "怎麼感覺哪裡怪怪的，再想一下好了"
+        ]
+
+    def get_main_message(self):
+        return [
+            TextSendMessage(text=self.main_messages[0]),
+            ImageSendMessage(original_content_url = f"{APP_URL}/static/img/7_betray_word_puzzle_combine.png", preview_image_url = f"{APP_URL}/static/img/7_betray_word_puzzle_combine.png"),
+            ImageSendMessage(original_content_url = f"{APP_URL}/static/img/7_betray_map_combine.png", preview_image_url = f"{APP_URL}/static/img/7_betray_map_combine.png"),
+            TextSendMessage(text=self.main_messages[1]),
+        ]
+
+    def check_ans(self, ans, force_correct=False, retry_count=0):
+        '''return (True, Messages:list), Message is empty list if ans is correct, otherwise need to throw error message to reply to linbot'''
+        if force_correct:
+            # force correct answer
+            return True, [TextSendMessage(text=msg, sender=None) for msg in self.post_messages]
+        if ans == self.ans:
+            return True, [TextSendMessage(text=msg, sender=None) for msg in self.post_messages]
+        return False, [TextSendMessage(text=self.reply_messages_wrong[0])]
+
+
 class Ending(Story):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(args, kwargs)

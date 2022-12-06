@@ -40,7 +40,7 @@ class Story_Manager:
             story.Welcome(username=user_name),  
             story.simple_msg_maker(2, msg='死定了', button_label='???發生什麼事', text_after_clicked='???發生什麼事!', sender_name=None),
             story.Welcome2(username=user_name),  
-            story.simple_msg_maker(3, msg='TBD', button_label='但我要怎麼幫啊?', text_after_clicked='但我要怎麼幫啊?'), 
+            story.simple_msg_maker(3, msg='真的可以嗎?', button_label='但是', text_after_clicked='但我要怎麼幫啊?'), 
             story.simple_msg_maker(4, msg='一起集思廣益啊！兩個腦袋比一個好用！', button_label='我想想喔…', text_after_clicked='對了，你暑假不是有參加一個營隊?'), 
             story.simple_msg_maker(5, msg='欸？對欸，好險有你幫忙，我去找一下營隊手冊\n我找到了！剛好營隊有很多內容也在馬太福音呢！', button_label='那我就幫你到這', text_after_clicked='接下來就靠你自己吧!'), 
             story.simple_msg_maker(6, msg='欸！等等啦！我發現我看不懂自己的筆記😅', button_label='不是吧!', text_after_clicked='你都不懂，我怎麼可能懂啊?'), 
@@ -61,6 +61,7 @@ class Story_Manager:
             story.Question6_b_1(q6_uuid=self.q6_uuid),
             story.simple_msg_maker(16, msg='同學補充說：和散那就是由Yasha(拯救、交付)以及Anna(懇求)這兩個希伯來語組成的，意思是"我求你來拯救"', button_label='天啊！', text_after_clicked='他出的也太複雜了吧!\n但很有深度耶!'),
             story.simple_msg_maker(17, msg='😥對啊！我都解崩潰了，還是沒頭緒\n我覺得可以來收尾了！', button_label='對阿！', text_after_clicked='已經有不少素材了!'),
+            story.Question7(),
             story.Ending()
         ]
         self.user_name = user_name
