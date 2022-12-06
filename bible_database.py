@@ -194,7 +194,7 @@ def test_db():
 db = BibleDB()
 db.connect()
 try:
-    # db.drop_table()
+    db.drop_table()
     pass
 except:
     pass
