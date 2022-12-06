@@ -594,9 +594,9 @@ class Question7(Story):
     def get_main_message(self):
         return [
             TextSendMessage(text=self.main_messages[0]),
-            ImageSendMessage(original_content_url = f"{APP_URL}/static/img/7_betray_word_puzzle_combine.png", preview_image_url = f"{APP_URL}/static/img/7_betray_word_puzzle_combine.png"),
-            ImageSendMessage(original_content_url = f"{APP_URL}/static/img/7_betray_map_combine.png", preview_image_url = f"{APP_URL}/static/img/7_betray_map_combine.png"),
-            TextSendMessage(text=self.main_messages[1]),
+            ImageSendMessage(original_content_url = f"{APP_URL}/static/img/7_betray_word_puzzle_combine.jpg", preview_image_url = f"{APP_URL}/static/img/7_betray_word_puzzle_combine_prev.jpg"),
+            ImageSendMessage(original_content_url = f"{APP_URL}/static/img/7_betray_map_combine.jpg", preview_image_url = f"{APP_URL}/static/img/7_betray_map_combine_prev.jpg"),
+            TextSendMessage(text=self.main_messages[1])
         ]
 
     def check_ans(self, ans, force_correct=False, retry_count=0):
