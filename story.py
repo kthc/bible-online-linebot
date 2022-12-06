@@ -411,7 +411,7 @@ class Question3(Story):
             ]
      
     def get_main_message(self):
-        return [ImageSendMessage(original_content_url = f"{APP_URL}/static/img/3_New_born_king_sudoku.png", preview_image_url = f"{APP_URL}/static/img/3_New_born_king_sudoku.png", icon_url=f"{APP_URL}/static/img/icon_48x48.jpeg")]
+        return [ImageSendMessage(original_content_url = f"{APP_URL}/static/img/3_New_born_king_sudoku.jpg", preview_image_url = f"{APP_URL}/static/img/3_New_born_king_sudoku.jpg")]
 
     def check_ans(self, ans, force_correct=False, retry_count=0):
         '''return (True, Messages:list), Message is empty lst if ans is correct, otherwise need to throw error message to reply to linbot'''
