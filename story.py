@@ -345,6 +345,43 @@ class Question1(Story):
             return True, [TextSendMessage(text=msg) for msg in self.post_messages]
         return False, [TextSendMessage(text=self.reply_messages_wrong[3])]
 
+class Question2(Story):
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(args, kwargs)
+        self.id = 200
+        self.story_name = '伯利恆題'
+        self.pre_messages = [
+            f'''別這樣啦!你人最好了''',
+            f'''我記得需要用到Goolge Map''']
+        self.post_messages = [
+            '''Wow！神隊友呀你！！！''']
+        self.main_messages = [
+            f'''題目長這樣:\n「跟著蔣渭水的腳步往南走了47公里，又餓又累，不得不去找東西吃，但是附近只有好像你家的地方。而且讓我一度懷疑我有任意門，如果能再有張床的話一切就太完美了！」'''
+            ]
+        self.ans = '伯利恆'
+        self.reply_messages_wrong = [
+            "怎麼感覺哪裡怪怪的，再想一下好了",
+            "不是啦，這個詞沒出現在聖經過，是不是多打了些甚麼字呢？",
+            "誒等下，我看到在題目旁邊還有隻雞被關在籠子裡的小插圖，不知道對你有沒有幫助？"
+            ]
+
+    def get_pre_message(self):
+        location = [LocationSendMessage(title='Google maps', address='100台北市中正區和平西路二段15號', latitude=25.02840541918362, longitude=121.51382485320154)]
+        pre_messages = [TextSendMessage(text=text) for text in self.pre_messages]
+        return pre_messages + location
+   
+    def check_ans(self, ans, force_correct=False, retry_count=0):
+        '''return (True, Messages:list), Message is empty list if ans is correct, otherwise need to throw error message to reply to linbot'''
+        if ans == self.ans or force_correct:
+            return True, [TextSendMessage(text=msg) for msg in self.post_messages]
+        elif retry_count == 3:
+            return False, [TextSendMessage(text=self.reply_messages_wrong[2])]
+        elif ans == "伯利恆之星":
+            # some matched, some not
+            return False, [TextSendMessage(text=self.reply_messages_wrong[1])]
+        else:
+            # not matched any of ans
+            return False, [TextSendMessage(text=self.reply_messages_wrong[0])]
 
 class Question4(Story):
     def __init__(self, *args, **kwargs) -> None:
