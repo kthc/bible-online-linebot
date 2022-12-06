@@ -69,7 +69,7 @@ class Story:
         else:
             return False, [TextSendMessage(text=msg, sender=None) for msg in self.reply_messages_wrong]
     
-    def show_ans_if_force_correct(self, messages:list(TextSendMessage)=[], pre_text='正確答案是:'):
+    def show_ans_if_force_correct(self, messages=[], pre_text='正確答案是:'):
         '''if messages not given, it will send the correct ans and post_messages of this instance'''
         if len(messages)==0:
             return True, [TextSendMessage(text=f'''{pre_text}{self.ans}''', sender=None)] + [TextSendMessage(text=msg, sender=None) for msg in self.post_messages]
