@@ -55,7 +55,7 @@ class Story_Manager:
             story.simple_msg_maker(12, msg='對了欸！不錯嘛！題目沒問題吧？', button_label='嗯嗯!', text_after_clicked='嗯嗯! 只是好奇你上面的圖片哪來的?總不可能是你自己畫的吧'), 
             story.simple_msg_maker(13, msg='那當然不是啊！是得到了民間高手的幫助', button_label='我就說!', text_after_clicked='我就說!難怪這麼精美'), 
             story.simple_msg_maker(14, msg='欸欸好消息！我同學傳給我一題他自己設計的題目！', button_label='咦?', text_after_clicked='你還有請別人幫忙喔?'), 
-            story.simple_msg_maker(15, msg='對啊！不然真的好累\n但是我是先找你的喔！別吃醋！', button_label='我才不會…', text_after_clicked='我才不會…'), 
+            story.simple_msg_maker(15, msg='對啊！不然真的好累😞\n但是我是先找你的喔！別吃醋！', button_label='我才不會…', text_after_clicked='我才不會…'), 
             story.Question6_a(),
             story.Question6_b(q6_uuid=self.q6_uuid),
             story.Question6_b_1(q6_uuid=self.q6_uuid),
