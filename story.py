@@ -500,7 +500,7 @@ class Question5(Story):
             ]
         self.post_messages = []
         self.main_messages = ''
-        self.ans = '以力殺'
+        self.ans = '以吏殺'
         self.reply_messages_wrong = [
             "為了防止猜題的可能，請輸入實際解出的國字唷",
             "怎麼感覺哪裡怪怪的，再想一下好了"
@@ -508,7 +508,7 @@ class Question5(Story):
     
     def get_main_message(self):
         return [
-            ImageSendMessage(original_content_url = f"{APP_URL}/static/img/Q5_parables_prophet.png", preview_image_url = f"{APP_URL}/static/img/5_parables_prophet.png")
+            ImageSendMessage(original_content_url = f"{APP_URL}/static/img/5_parables_prophet.png", preview_image_url = f"{APP_URL}/static/img/5_parables_prophet.png")
             ]
 
     def check_ans(self, ans, force_correct=False, retry_count=0):
@@ -631,7 +631,7 @@ class Question6_b_1(Story):
         self.pre_messages = []
         self.post_messages = ['我問問看！嗯嗯他說答對了！']
         self.main_messages = []
-        self.ans = ''
+        self.ans = 'Anna'
         self.reply_messages_wrong = [
             "怎麼感覺哪裡怪怪的，再想一下好了",
             "如果後悔了想更改挑戰模式的話，可以重選喔！",
@@ -723,13 +723,45 @@ class Ending(Story):
         self.reply_messages_correct = []
         self.reply_messages_wrong = ['你已經闖關完畢囉!']
 
+    # def get_main_message(self):
+    #     sticker = [StickerSendMessage(package_id=11537, sticker_id=52002745)]
+    #     main_msg = [TextSendMessage(text=text) for text in self.main_messages]
+    #     images = [
+    #         ImageSendMessage(original_content_url = f"{APP_URL}/static/img/info.jpg", preview_image_url = f"{APP_URL}/static/img/info.jpg")
+    #         ]
+    #     return sticker + main_msg
+    
     def get_main_message(self):
         sticker = [StickerSendMessage(package_id=11537, sticker_id=52002745)]
-        main_msg = [TextSendMessage(text=text) for text in self.main_messages]
-        images = [
-            ImageSendMessage(original_content_url = f"{APP_URL}/static/img/info.jpg", preview_image_url = f"{APP_URL}/static/img/info.jpg")
-            ]
-        return sticker + main_msg + images
+        # main_msg = [TextSendMessage(text=text) for text in self.main_messages]
+        main_msg2 = [
+            TemplateSendMessage(
+                alt_text='Buttons template',
+                template=ButtonsTemplate(
+                    title='關於我們',
+                    text='想更深入了解我們團隊嗎?請點選下面按鈕',
+                    actions=[
+                        MessageTemplateAction(
+                            label='搶先看週六小組的信息內容',
+                            text=f'搶先看週六小組的信息內容:(牧師講章)'
+                        ),
+                        MessageTemplateAction(
+                            label='解題思路',
+                            text=f'解題思路:TBD'
+                        ),
+                        MessageTemplateAction(
+                            label='團隊介紹',
+                            text=f'團隊介紹:TBD'
+                        ),
+                        MessageTemplateAction(
+                            label='奉獻資訊',
+                            text=f'奉獻資訊:TBD'
+                        ),
+                    ]
+                )
+            )
+        ]
+        return sticker + main_msg2
     
     def check_ans(self, ans, force_correct=False, retry_count=0):
         '''return (True, Messages:list), Message is empty list if ans is correct, otherwise need to throw error message to reply to linbot'''
