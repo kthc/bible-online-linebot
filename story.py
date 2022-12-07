@@ -482,8 +482,8 @@ class Question4(Story):
                 return False, [TextSendMessage(text=self.reply_messages_wrong[0])]
 
     def get_main_message(self):
-        picture = [ImageSendMessage(original_content_url="https://img.onl/M2cPB3",
-                                    preview_image_url="https://i.imgur.com/rvQwscy.png")]
+        picture = [ImageSendMessage(original_content_url= f"{APP_URL}/static/img/4_ba_fu.png",
+                                    preview_image_url= f"{APP_URL}/static/img/4_ba_fu.png")]
         main_msg = [TextSendMessage(text=text) for text in self.main_messages]
         return picture + main_msg
 
@@ -500,7 +500,7 @@ class Question5(Story):
             ]
         self.post_messages = []
         self.main_messages = ''
-        self.ans = '以吏殺'
+        self.ans = '以力殺'
         self.reply_messages_wrong = [
             "為了防止猜題的可能，請輸入實際解出的國字唷",
             "怎麼感覺哪裡怪怪的，再想一下好了"
