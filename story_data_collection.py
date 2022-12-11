@@ -65,8 +65,8 @@ video_dict = {
 
 img_dict = {
     'Q1':  {'url': f"{APP_URL}/static/img/Q1_handwritten_note.jpg", 'preview': f"{APP_URL}/static/img/Q1_handwritten_note.jpg"},
-    'Q6_normal':  {'url': f"{APP_URL}/static/img/Q6_normal.jpg", 'preview': f"{APP_URL}/static/img/Q6_normal.jpg"},
-    'Q6_challeng':  {'url': f"{APP_URL}/static/img/Q6_challeng.jpg", 'preview': f"{APP_URL}/static/img/Q6_challeng.jpg"},
-    'Q6_normal_grid':  {'url': f"{APP_URL}/static/img/Q6_normal_grid.jpg", 'preview': f"{APP_URL}/static/img/Q6_normal_grid.jpg"},
-    'Q6_challeng_grid':  {'url': f"{APP_URL}/static/img/Q6_challeng_grid.jpg", 'preview': f"{APP_URL}/static/img/Q6_challeng_grid.jpg"},
+    'Q6_normal':  {'url': f"{APP_URL}/static/img/6_b_Hosannah_vme_w_word.png", 'preview': f"{APP_URL}/static/img/6_b_Hosannah_vme_w_word.png"},
+    'Q6_challeng':  {'url': f"{APP_URL}/static/img/6_b_Hosannah_vme_no_word.png", 'preview': f"{APP_URL}/static/img/6_b_Hosannah_vme_no_word.png"},
+    'Q6_normal_grid':  {'url': f"{APP_URL}/static/img/6_b_easy.png", 'preview': f"{APP_URL}/static/img/6_b_easy.png"},
+    'Q6_challeng_grid':  {'url': f"{APP_URL}/static/img/6_b_hard.jpg", 'preview': f"{APP_URL}/static/img/6_b_hard.jpg"},
 }
