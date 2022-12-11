@@ -71,7 +71,7 @@ class Story:
         else:
             return False, [TextSendMessage(text=msg, sender=None) for msg in self.reply_messages_wrong]
 
-    def show_ans_if_force_correct(self, messages=[], pre_text='正確答案是:'):
+    def show_ans_if_force_correct(self, messages=[], pre_text='正確答案是：'):
         '''if messages not given, it will send the correct ans and post_messages of this instance'''
         if len(messages) == 0:
             return True, [TextSendMessage(text=f'''{pre_text}{self.ans}''', sender=None)] + [TextSendMessage(text=msg, sender=None) for msg in self.post_messages]
@@ -736,8 +736,7 @@ class Question6_b(Story):
                         CarouselColumn(
                             title='正常版',
                             text='適合不想太燒腦的你',
-                            thumbnail_image_url=img_dict.get(
-                                'Q6_normal', '')['url'],
+                            thumbnail_image_url=f"{APP_URL}/static/img/6_b_easy.png",
                             actions=[
                                 MessageAction(
                                     label='正常版',
@@ -748,8 +747,7 @@ class Question6_b(Story):
                         CarouselColumn(
                             title='挑戰版',
                             text='來挑戰看看吧',
-                            thumbnail_image_url=img_dict.get(
-                                'Q6_challeng', '')['url'],
+                            thumbnail_image_url=f"{APP_URL}/static/img/6_b_hard.jpg",
                             actions=[
                                 MessageAction(
                                     label='挑戰版',
@@ -803,13 +801,11 @@ class Question6_b_1(Story):
         global STORY_GLOBAL
         if STORY_GLOBAL[self.q6_uuid] == 1:
             return [
-                ImageSendMessage(original_content_url=img_dict.get('Q6_normal_grid')[
-                                 'url'], preview_image_url=img_dict.get('Q6_normal_grid')['url'])
+                ImageSendMessage(original_content_url=f"{APP_URL}/static/img/6_b_Hosannah_vme_w_word.png", preview_image_url=f"{APP_URL}/static/img/6_b_Hosannah_vme_w_word.png")
             ]
         elif STORY_GLOBAL[self.q6_uuid] == 2:
             return [
-                ImageSendMessage(original_content_url=img_dict.get('Q6_challeng_grid')[
-                                 'url'], preview_image_url=img_dict.get('Q6_challeng_grid')['url'])
+                ImageSendMessage(original_content_url=f"{APP_URL}/static/img/6_b_Hosannah_vme_no_word.png", preview_image_url=f"{APP_URL}/static/img/6_b_Hosannah_vme_no_word.png")
             ]
 
     def check_ans(self, ans, force_correct=False, retry_count=0):
@@ -906,7 +902,7 @@ class Ending(Story):
                             {
                                 "type": "text",
                                 "text": "週六小組裡到底分享了甚麼信息呢？ 點選下小組信息就可以看囉。中間在哪一題卡住了嗎？點選解題思路，看看各題的解題辦法！",
-                                "wrap": true
+                                "wrap": True
                             }
                         ],
                         "height": "150px",
@@ -939,14 +935,14 @@ class Ending(Story):
                     "styles": {
                         "header": {
                             "separatorColor": "#dbdbdb",
-                            "separator": true
+                            "separator": True
                         },
                         "hero": {
-                            "separator": true,
+                            "separator": True,
                             "separatorColor": "#b0b0b0"
                         },
                         "body": {
-                            "separator": true,
+                            "separator": True,
                             "separatorColor": "#b0b0b0"
                         }
                     }
@@ -960,7 +956,7 @@ class Ending(Story):
                             {
                                 "type": "text",
                                 "text": "歡迎點選以下連結更了解我們團隊，若您願意奉獻，也可參考奉獻資訊。",
-                                "wrap": true
+                                "wrap": True
                             }
                         ],
                         "height": "150px",
@@ -993,23 +989,22 @@ class Ending(Story):
                     "styles": {
                         "header": {
                             "separatorColor": "#dbdbdb",
-                            "separator": true
+                            "separator": True
                         },
                         "hero": {
-                            "separator": true,
+                            "separator": True,
                             "separatorColor": "#b0b0b0"
                         },
                         "body": {
-                            "separator": true,
+                            "separator": True,
                             "separatorColor": "#b0b0b0"
                         }
                     }
                 }
             ]
         }
-        sticker = [StickerSendMessage(package_id=11537, sticker_id=52002745)]
         # main_msg = [TextSendMessage(text=text) for text in self.main_messages]
-        main_msg2 = [
+        main_msg = [
             TextSendMessage(text='''這些素材真是太可以了！'''),
             StickerSendMessage(package_id=11537, sticker_id=52002745),
             TextSendMessage(text='''作為福利，我讓你搶先看週六小組的信息內容'''),
@@ -1040,7 +1035,7 @@ class Ending(Story):
             #     )
             # )
         ]
-        return sticker + main_msg2
+        return main_msg
 
     def check_ans(self, ans, force_correct=False, retry_count=0):
         '''return (True, Messages:list), Message is empty list if ans is correct, otherwise need to throw error message to reply to linbot'''
