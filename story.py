@@ -309,8 +309,6 @@ class P7(Story):
             '''喔不！ 原來你還沒準備好。沒關係，隨時輸入"可以啊"讓我知道可以開始囉！''']
 
     def get_main_message(self):
-        if self.display_text == '' or self.display_text is None:
-            self.display_text = self.label
         return [
             TextSendMessage(
                 text=f'欸？對欸，好險有你幫忙，我去找一下營隊手冊'
@@ -410,8 +408,6 @@ class P12(Story):
             '''喔不！ 原來你還沒準備好。沒關係，隨時輸入"可以啊"讓我知道可以開始囉！''']
 
     def get_main_message(self):
-        if self.display_text == '' or self.display_text is None:
-            self.display_text = self.label
         return [
             TextSendMessage(
                 text=f'你等我講完，答案是聖經裡的一個名詞'
@@ -540,8 +536,6 @@ class P17(Story):
         self.reply_messages_wrong = []
 
     def get_main_message(self):
-        if self.display_text == '' or self.display_text is None:
-            self.display_text = self.label
         return [
             TextSendMessage(
                 text=f'怎麼可能，講章太像上課一定沒人理我😤'
@@ -698,8 +692,6 @@ class P31(Story):
         self.reply_messages_wrong = []
 
     def get_main_message(self):
-        if self.display_text == '' or self.display_text is None:
-            self.display_text = self.label
         return [
             TextSendMessage(
                 text=f'😥對啊！我都解崩潰了，還是沒頭緒'
