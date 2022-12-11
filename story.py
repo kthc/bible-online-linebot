@@ -914,7 +914,7 @@ class Ending(Story):
                             {
                                 "type": "text",
                                 "text": "週六小組裡到底分享了甚麼信息呢？ 點選下小組信息就可以看囉。中間在哪一題卡住了嗎？點選解題思路，看看各題的解題辦法！",
-                                "wrap": True
+                                "wrap": true
                             }
                         ],
                         "height": "150px",
@@ -947,14 +947,14 @@ class Ending(Story):
                     "styles": {
                         "header": {
                             "separatorColor": "#dbdbdb",
-                            "separator": True
+                            "separator": true
                         },
                         "hero": {
-                            "separator": True,
+                            "separator": true,
                             "separatorColor": "#b0b0b0"
                         },
                         "body": {
-                            "separator": True,
+                            "separator": true,
                             "separatorColor": "#b0b0b0"
                         }
                     }
@@ -968,7 +968,7 @@ class Ending(Story):
                             {
                                 "type": "text",
                                 "text": "歡迎點選以下連結更了解我們團隊，若您願意奉獻，也可參考奉獻資訊。",
-                                "wrap": True
+                                "wrap": true
                             }
                         ],
                         "height": "150px",
@@ -1001,14 +1001,14 @@ class Ending(Story):
                     "styles": {
                         "header": {
                             "separatorColor": "#dbdbdb",
-                            "separator": True
+                            "separator": true
                         },
                         "hero": {
-                            "separator": True,
+                            "separator": true,
                             "separatorColor": "#b0b0b0"
                         },
                         "body": {
-                            "separator": True,
+                            "separator": true,
                             "separatorColor": "#b0b0b0"
                         }
                     }
