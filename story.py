@@ -284,27 +284,6 @@ class Welcome2(Story):
         self.reply_messages_wrong = [
             '''喔不！ 原來你還沒準備好。沒關係，隨時輸入"可以啊"讓我知道可以開始囉！''']
 
-    def get_main_message(self):
-        return [
-            TemplateSendMessage(
-                alt_text='Buttons template',
-                template=ButtonsTemplate(
-                    title=f'{self.username}在嘛？',
-                    text='\t',
-                    actions=[
-                        MessageTemplateAction(
-                            label='在啊！怎麼了？',
-                            text='在啊！怎麼了？'
-                        ),
-                        MessageTemplateAction(
-                            label='不在，幹嘛？',
-                            text='不在，幹嘛？'
-                        )
-                    ]
-                )
-            )
-        ]
-
     def check_ans(self, ans, force_correct=False, retry_count=0):
         '''return (True, Messages:list), Message is empty list if ans is correct, otherwise need to throw error message to reply to linbot'''
         if force_correct:
