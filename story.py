@@ -862,7 +862,7 @@ class Question7(Story):
         '''return (True, Messages:list), Message is empty list if ans is correct, otherwise need to throw error message to reply to linbot'''
         if force_correct:
             # force correct answer
-            return True, [TextSendMessage(text='''正確答案是：{self.ans}\n真是太感謝你了！''', sender=None)]
+            return True, [TextSendMessage(text=f'''正確答案是：{self.ans}\n真是太感謝你了！''', sender=None)]
         if ans == self.ans:
             return True, [TextSendMessage(text=msg, sender=None) for msg in self.post_messages]
         return False, [TextSendMessage(text=self.reply_messages_wrong[0])]
