@@ -843,7 +843,7 @@ class Question7(Story):
         self.post_messages = ['真是太感謝你了！']
         self.main_messages = [
             '我想想…用這個結尾如何？既然耶穌是主角，就要找到耶穌在客西馬尼園禱告的位置！', '(請根據地圖上的標示輸入相同的文字)']
-        self.ans = '2'
+        self.ans = '3'
         self.reply_messages_wrong = [
             "怎麼感覺哪裡怪怪的，再想一下好了"
         ]
@@ -862,7 +862,7 @@ class Question7(Story):
         '''return (True, Messages:list), Message is empty list if ans is correct, otherwise need to throw error message to reply to linbot'''
         if force_correct:
             # force correct answer
-            return self.show_ans_if_force_correct()
+            return True, [TextSendMessage(text='''正確答案是：{self.ans}\n真是太感謝你了！''', sender=None)]
         if ans == self.ans:
             return True, [TextSendMessage(text=msg, sender=None) for msg in self.post_messages]
         return False, [TextSendMessage(text=self.reply_messages_wrong[0])]
@@ -901,7 +901,7 @@ class Ending(Story):
                         "contents": [
                             {
                                 "type": "text",
-                                "text": "週六小組裡到底分享了甚麼信息呢？ 點選下小組信息就可以看囉。中間在哪一題卡住了嗎？點選解題思路，看看各題的解題辦法！",
+                                "text": "週六小組裡到底分享了甚麼信息呢？ 點選以下小組信息就可以看囉。中間在哪一題卡住了嗎？點選解題思路，看看各題的解題辦法！",
                                 "wrap": True
                             }
                         ],
