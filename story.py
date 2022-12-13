@@ -77,6 +77,10 @@ class Story:
             return True, [TextSendMessage(text=f'''{pre_text}{self.ans}''', sender=None)] + [TextSendMessage(text=msg, sender=None) for msg in self.post_messages]
         else:
             return True, messages
+    
+    def show_ans_over_try(self):
+        '''if messages not given, it will send the correct ans and post_messages of this instance'''
+        return True, [TextSendMessage(text=f'''（系統偵測已作答多次，為使遊戲順利進行，將直接報出答案。請將答案複製貼上於對話框並回傳。此題答案為：{self.ans}）''', sender=None)]
 
 
 class SimplePostbackStory(Story):
@@ -357,6 +361,8 @@ class Question1(Story):
         correct_ans_list = self.ans.split("，")
         pattern = r"[\s\W]"
         fixed_ans = re.sub(pattern, "，", ans)
+        if retry_count > 15:
+            return self.show_ans_over_try()
         if force_correct:
             # force correct answer
             return self.show_ans_if_force_correct()
@@ -459,6 +465,8 @@ class Question2(Story):
 
     def check_ans(self, ans, force_correct=False, retry_count=0):
         '''return (True, Messages:list), Message is empty list if ans is correct, otherwise need to throw error message to reply to linbot'''
+        if retry_count > 15:
+            return self.show_ans_over_try()
         if force_correct:
             # force correct answer
             return self.show_ans_if_force_correct()
@@ -497,6 +505,8 @@ class Question3(Story):
 
     def check_ans(self, ans, force_correct=False, retry_count=0):
         '''return (True, Messages:list), Message is empty lst if ans is correct, otherwise need to throw error message to reply to linbot'''
+        if retry_count > 15:
+            return self.show_ans_over_try()
         if force_correct:
             # force correct answer
             return self.show_ans_if_force_correct()
@@ -585,6 +595,8 @@ class Question4(Story):
                 check_Str += 1
             if ans.find(self.ans[a]) == a:
                 check_sequence += 1
+        if retry_count > 15:
+            return self.show_ans_over_try()
         if force_correct:
             # force correct answer
             return self.show_ans_if_force_correct()
@@ -632,6 +644,8 @@ class Question5(Story):
 
     def check_ans(self, ans, force_correct=False, retry_count=0):
         '''return (True, Messages:list), Message is empty list if ans is correct, otherwise need to throw error message to reply to linbot'''
+        if retry_count > 15:
+            return self.show_ans_over_try()
         if force_correct:
             # force correct answer
             return self.show_ans_if_force_correct()
@@ -669,6 +683,8 @@ class Question6_a(Story):
 
     def check_ans(self, ans, force_correct=False, retry_count=0):
         '''return (True, Messages:list), Message is empty list if ans is correct, otherwise need to throw error message to reply to linbot'''
+        if retry_count > 15:
+            return self.show_ans_over_try()
         if force_correct:
             # force correct answer
             return self.show_ans_if_force_correct()
@@ -811,6 +827,8 @@ class Question6_b_1(Story):
     def check_ans(self, ans, force_correct=False, retry_count=0):
         '''return (True, Messages:list), Message is empty list if ans is correct, otherwise need to throw error message to reply to linbot'''
         global STORY_GLOBAL
+        if retry_count > 15:
+            return self.show_ans_over_try()
         if force_correct:
             # force correct answer
             return self.show_ans_if_force_correct()
@@ -860,6 +878,8 @@ class Question7(Story):
 
     def check_ans(self, ans, force_correct=False, retry_count=0):
         '''return (True, Messages:list), Message is empty list if ans is correct, otherwise need to throw error message to reply to linbot'''
+        if retry_count > 15:
+            return self.show_ans_over_try()
         if force_correct:
             # force correct answer
             return True, [TextSendMessage(text=f'''正確答案是：{self.ans}\n真是太感謝你了！''', sender=None)]
