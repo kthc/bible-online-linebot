@@ -918,7 +918,7 @@ class Ending(Story):
                                 "action": {
                                     "type": "message",
                                     "label": "小組訊息",
-                                    "text": "https://drive.google.com/file/d/1mQhwBJ1_uX4WPmyS9uIgXeRjjorZrYkW/view?usp=share_link"
+                                    "text": "https://drive.google.com/file/d/1Hgr4jnakPflcH1WV5F3EbUJ8PtN-vIVw/view?usp=share_link"
                                 }
                             },
                             {
