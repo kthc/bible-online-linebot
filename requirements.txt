@@ -26,3 +26,5 @@ gTTS==2.2.4
 soundfile==0.11.0
 psycopg2
 python-dotenv
+waitress
+pyngrok 

@@ -2,6 +2,9 @@
 聖經OnLine v1.0
 '''
 import os
+from dotenv import load_dotenv
+load_dotenv()
+
 from bible_database import db
 from flask import Flask, request, abort
 from app_global import line_bot_api, handler

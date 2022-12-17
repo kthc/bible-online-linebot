@@ -40,7 +40,7 @@ class Story_Manager:
             story.Welcome(username=user_name),  
             story.simple_msg_maker(5, msg='死定了', button_label='？？？', text_after_clicked='？？？發生什麼事', sender_name=None),
             story.Welcome2(username=user_name),  
-            story.simple_msg_maker(10, msg='真的可以嗎？（請務必使用手機進行遊戲，並點選對話下方浮現的按鈕來推進劇情。輸入｢reset｣可重新開始遊戲。）', button_label='但是', text_after_clicked='我要怎麼幫啊？'), 
+            story.simple_msg_maker(10, msg='真的可以嗎？（請務必使用手機或平板進行遊戲，並點選對話下方浮現的按鈕來推進劇情。輸入｢reset｣可重新開始遊戲。）', button_label='但是', text_after_clicked='我要怎麼幫啊？'), 
             story.simple_msg_maker(15, msg='一起集思廣益啊！兩個腦袋比一個好用！', button_label='我想想喔…', text_after_clicked='對了，你暑假不是有參加一個營隊？'),
             story.P7(),
             # story.simple_msg_maker(20, msg='欸？對欸，好險有你幫忙，我去找一下營隊手冊\n我找到了！剛好營隊有很多內容也在馬太福音呢！', button_label='那我就幫你到這', text_after_clicked='接下來就靠你自己吧！'), 
