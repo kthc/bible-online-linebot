@@ -33,8 +33,7 @@ class BibleDB:
                 UserID VARCHAR(255), 
                 CurStoryID int, 
                 CurrentValue VARCHAR(255),
-                PRIMARY KEY (UserID, CurStoryID),
-            );""")
+                PRIMARY KEY (UserID, CurStoryID));""")
         self.con.commit()
         cur.close()
         print(f'{self.selection_table} table created')
@@ -259,7 +258,7 @@ def test_db():
     mydb.get_storyid_by_userid('ony_for_test')
     mydb.close()
 
-db = BibleDB('UserLog')
+db = BibleDB()
 db.connect()
 try:
     # db.drop_table()

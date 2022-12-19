@@ -38,13 +38,9 @@ from linebot.models import (
 import re
 import uuid
 import random
-from app_global import APP_URL, story_global
+from app_global import APP_URL
 from story_data_collection import roles, audio_dict, video_dict, img_dict
 from bible_database import db
-
-
-Q3_GLOBAL = {}
-story_global = {}
 
 
 class Story:
