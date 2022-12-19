@@ -34,13 +34,14 @@ import story
 from story_data_collection import audio_dict, video_dict, img_dict
 
 class Story_Manager:
-    def __init__(self, user_name='USER') -> None:
-        self.q6_uuid = uuid.uuid1()
+    def __init__(self, user_name='USER', user_id='') -> None:
+        self.user_name = user_name
+        self.user_id = user_id
         self.stories = [
             story.Welcome(username=user_name),  
             story.simple_msg_maker(5, msg='死定了', button_label='？？？', text_after_clicked='？？？發生什麼事', sender_name=None),
             story.Welcome2(username=user_name),  
-            story.simple_msg_maker(10, msg='真的可以嗎？（請務必使用手機或平板進行遊戲，並點選對話下方浮現的按鈕來推進劇情。輸入｢reset｣可重新開始遊戲。）', button_label='但是', text_after_clicked='我要怎麼幫啊？'), 
+            story.simple_msg_maker(10, msg='真的可以嗎？（請務必使用手機或平板進行遊戲，並點選對話下方浮現的按鈕來推進劇情。）', button_label='但是', text_after_clicked='我要怎麼幫啊？'), 
             story.simple_msg_maker(15, msg='一起集思廣益啊！兩個腦袋比一個好用！', button_label='我想想喔…', text_after_clicked='對了，你暑假不是有參加一個營隊？'),
             story.P7(),
             # story.simple_msg_maker(20, msg='欸？對欸，好險有你幫忙，我去找一下營隊手冊\n我找到了！剛好營隊有很多內容也在馬太福音呢！', button_label='那我就幫你到這', text_after_clicked='接下來就靠你自己吧！'), 
@@ -53,7 +54,7 @@ class Story_Manager:
             story.P12(),
             story.Question2(), 
             story.simple_msg_maker(46, msg='這本手冊真是個寶阿！我又找到了一個活動，想當初我可是秒答呢！你挑戰看看？', button_label='不會吧！', text_after_clicked='你竟然有秒答的一天？'), 
-            story.Question3(),
+            story.Question3(userid=self.user_id),
             story.simple_msg_maker(50, msg='對了！我想把八福也加入這次的信息', button_label='可以呀！', text_after_clicked='但是你要怎麼帶？\n難道你要準備講章？'), 
             # story.simple_msg_maker(55, msg='怎麼可能，講章太像上課一定沒人理我😤\n我打算仿造之前玩過的解謎，讓大家動動腦', button_label='好啊！', text_after_clicked='設計完傳給我'),
             story.P17(),
@@ -65,15 +66,14 @@ class Story_Manager:
             story.simple_msg_maker(75, msg='欸欸好消息！我同學傳給我一題他自己設計的題目！', button_label='咦？', text_after_clicked='你還有請別人幫忙喔？'), 
             story.simple_msg_maker(80, msg='對啊！不然真的好累😞\n但是我是先找你的喔！別吃醋！', button_label='我才不會…', text_after_clicked='我才不會…'), 
             story.Question6_a(),
-            story.Question6_b(q6_uuid=self.q6_uuid),
-            story.Question6_b_1(q6_uuid=self.q6_uuid),
+            story.Question6_b(userid=self.user_id),
+            story.Question6_b_1(userid=self.user_id),
             story.simple_msg_maker(90, msg='同學補充說：和散那就是由Yasha(拯救、交付)以及Anna(懇求)這兩個希伯來語組成的，意思是"我求你來拯救"', button_label='天啊！', text_after_clicked='他出的也太複雜了吧！\n但很有深度耶！'),
             # story.simple_msg_maker(95, msg='😥對啊！我都解崩潰了，還是沒頭緒\n我覺得可以來收尾了！', button_label='對阿！', text_after_clicked='已經有不少素材了！'),
             story.P31(),
             story.Question7(),
             story.Ending()
         ]
-        self.user_name = user_name
 
     def set_username(self, username):
         self.user_name = username

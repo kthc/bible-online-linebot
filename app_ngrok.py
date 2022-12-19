@@ -52,7 +52,7 @@ def create_app():
         user_id=event.source.user_id
         profile=line_bot_api.get_profile(user_id)
         user_name=profile.display_name
-        s_mang = Story_Manager(user_name)
+        s_mang = Story_Manager(user_name, user_id)
         print(f"user_id: {user_id}")
         print(f"user_name: {user_name}")
         if not db.check_user_exist(user_id):
@@ -71,10 +71,8 @@ def create_app():
         user_id=event.source.user_id
         profile=line_bot_api.get_profile(user_id)
         user_name=profile.display_name
-        
-        print(f"user_id: {user_id}, user_name: {user_name}")
-
         msg = event.message.text
+        print(f"user_id: {user_id}, user_name: {user_name}, input: {msg}")
 
         # check if user keyin helper keyword
         called_helper = help(event, key=msg)
@@ -92,12 +90,16 @@ def create_app():
         user_id=event.source.user_id
         profile=line_bot_api.get_profile(user_id)
         user_name=profile.display_name
-        print(f"user_id: {user_id}, user_name: {user_name}")
+        msg = event.postback.data
+        print(f"user_id: {user_id}, user_name: {user_name}, postback_input: {msg}")
         bypass = ['$Q3_Bypass', '$Q5_Bypass']
-        if event.postback.data in bypass:
+        if msg in bypass:
             pass
+        elif msg == '$Q6_reset':
+            db.clear_retry_count(user_id)
+            called_helper = help(event, key='-force-prev')
         else:
-            check_if_can_go_next_story(event, event.postback.data)
+            check_if_can_go_next_story(event, msg)
 
 
     '''
@@ -108,14 +110,14 @@ def create_app():
         user_id=event.source.user_id
         profile=line_bot_api.get_profile(user_id)
         user_name=profile.display_name
-        s_mang = Story_Manager(user_name)
+        s_mang = Story_Manager(user_name, user_id)
         if not db.check_user_exist(user_id):
             db.add_new_user(user_id)
             s_mang.show_welcome_story(event)
         else:
             story_id = db.get_storyid_by_userid(user_id)
             cur_retry = db.get_retry_count_by_userid(user_id)
-            ok = s_mang.check_answer(event, story_id, ans, retry_count=cur_retry)
+            ok = s_mang.check_answer(event, story_id, ans, retry_count=cur_retry+1) # add one because it start from 0, so the first trial will be 0+1 = 1 attempt
             end = s_mang.is_end_story(story_id)
             if ok and not end:
                 next_story_id = s_mang.next_story(story_id)

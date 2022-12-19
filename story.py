@@ -32,21 +32,25 @@ from linebot.models import (
     Sender,
     CarouselColumn,
     CarouselTemplate,
-    FlexSendMessage
+    FlexSendMessage,
+    PostbackTemplateAction
 )
 import re
 import uuid
 import random
-from app_global import APP_URL
+from app_global import APP_URL, story_global
 from story_data_collection import roles, audio_dict, video_dict, img_dict
+from bible_database import db
 
 
-STORY_GLOBAL = {}
+Q3_GLOBAL = {}
+story_global = {}
 
 
 class Story:
     def __init__(self, *args, **kwargs) -> None:
         self.username = ''
+        self.userid = ''
         self.story_name = ''
         self.id = -1
         self.pre_messages = []
@@ -77,7 +81,7 @@ class Story:
             return True, [TextSendMessage(text=f'''{pre_text}{self.ans}''', sender=None)] + [TextSendMessage(text=msg, sender=None) for msg in self.post_messages]
         else:
             return True, messages
-    
+
     def show_ans_over_try(self):
         '''if messages not given, it will send the correct ans and post_messages of this instance'''
         return True, [TextSendMessage(text=f'''（系統偵測已作答多次，為使遊戲順利進行，將直接報出答案。請將答案複製貼上於對話框並回傳。此題答案為：{self.ans}）''', sender=None)]
@@ -251,10 +255,10 @@ class Welcome(Story):
     def get_main_message(self):
         return [
             TemplateSendMessage(
-                alt_text='Buttons template',
+                alt_text='開始遊戲選擇!',
                 template=ButtonsTemplate(
                     title=f'{self.username}在嘛？',
-                    text='\t',
+                    text='請務必以手機或平板進行遊戲',
                     actions=[
                         MessageTemplateAction(
                             label='在啊！怎麼了？',
@@ -282,7 +286,8 @@ class Welcome2(Story):
         self.story_name = 'Welcome2'
         self.pre_messages = ['完全忘記我這週要帶小組！到現在還沒想好要帶什麼信息和活動...']
         self.post_messages = []
-        self.main_messages = [f'''這次範圍在馬太福音，你能幫幫我嗎？\n(請輸入｢可以啊｣開始遊戲)''']
+        self.main_messages = [
+            f'''這次範圍在馬太福音，你能幫幫我嗎？\n(請輸入｢可以啊｣開始遊戲；輸入｢reset｣重新開始遊戲；輸入｢skip｣跳題。)''']
         self.ans = '可以啊'
         self.reply_messages_correct = []
         self.reply_messages_wrong = [
@@ -361,8 +366,8 @@ class Question1(Story):
         correct_ans_list = self.ans.split("，")
         pattern = r"[\s\W]"
         fixed_ans = re.sub(pattern, "，", ans.strip())
-        if retry_count > 15:
-            return self.show_ans_over_try()
+        # if retry_count > 15:
+        #     return self.show_ans_over_try()
         if force_correct:
             # force correct answer
             return self.show_ans_if_force_correct()
@@ -465,18 +470,20 @@ class Question2(Story):
 
     def check_ans(self, ans, force_correct=False, retry_count=0):
         '''return (True, Messages:list), Message is empty list if ans is correct, otherwise need to throw error message to reply to linbot'''
-        if retry_count > 15:
-            return self.show_ans_over_try()
+        # if retry_count > 15:
+        #     return self.show_ans_over_try()
         if force_correct:
             # force correct answer
             return self.show_ans_if_force_correct()
-        if ans == self.ans or force_correct:
+        if ans == self.ans:
             return True, [TextSendMessage(text=msg) for msg in self.post_messages]
-        elif retry_count == 3:
-            return False, [TextSendMessage(text=self.reply_messages_wrong[2])]
+        elif ans != self.ans or ans != "伯利恆之星":
+            return False, [TextSendMessage(text=self.reply_messages_wrong[0])]
         elif ans == "伯利恆之星":
             # some matched, some not
             return False, [TextSendMessage(text=self.reply_messages_wrong[1])]
+        elif (retry_count % 3) == 0:
+            return False, [TextSendMessage(text=self.reply_messages_wrong[2])]
         else:
             # not matched any of ans
             return False, [TextSendMessage(text=self.reply_messages_wrong[0])]
@@ -486,6 +493,7 @@ class Question3(Story):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(args, kwargs)
         self.id = 300
+        self.userid = kwargs.get('userid', '')
         self.story_name = '新生王'
         self.pre_messages = [
             f'''是一個數獨的題目，看看你能不能解開天使的暗號''']
@@ -505,31 +513,85 @@ class Question3(Story):
 
     def check_ans(self, ans, force_correct=False, retry_count=0):
         '''return (True, Messages:list), Message is empty lst if ans is correct, otherwise need to throw error message to reply to linbot'''
-        if retry_count > 15:
-            return self.show_ans_over_try()
+        # if retry_count > 15:
+        #     return self.show_ans_over_try()
         if force_correct:
             # force correct answer
             return self.show_ans_if_force_correct()
 
-        if type(ans) is str:
-            # replace Chinese character for the same meaning
-            if ("于" in ans or "予" in ans or "與" in ans):
-                ans = ans.replace('于', '於')
-                ans = ans.replace('予', '於')
-                ans = ans.replace('與', '於')
-            if (ans == self.ans):
-                # correct answer
-                return True, [TextSendMessage(text=msg) for msg in self.post_messages]
-            # is almost ready to get the correct ans
-            elif "聽啊天使高聲唱" in ans:
-                return False, [TextSendMessage(text=self.reply_messages_wrong[3])]
-            # some match the keyword
-            elif ("聽啊" in ans or "天使" in ans or "高聲唱" in ans):
-                return False, [TextSendMessage(text=self.reply_messages_wrong[2])]
-            else:
-                # is still far way from correct ans
+        # replace Chinese character for the same meaning
+        if ("于" in ans or "予" in ans or "與" in ans):
+            ans = ans.replace('于', '於')
+            ans = ans.replace('予', '於')
+            ans = ans.replace('與', '於')
+        if "阿" in ans:
+            ans = ans.replace('阿', '啊')
+        if (ans == self.ans):
+            # correct answer
+            return True, [TextSendMessage(text=msg) for msg in self.post_messages]
+        # is almost ready to get the correct ans
+        elif "聽啊天使高聲唱" in ans:
+            return False, [TextSendMessage(text=self.reply_messages_wrong[3])]
+        # some match the keyword
+        elif ("聽啊" in ans or "天使" in ans or "高聲唱" in ans):
+            return False, [TextSendMessage(text=self.reply_messages_wrong[2])]
+        elif ans == '$Q3_yes':
+            db.upsert_selection_value(
+                userid=self.userid, storyid=self.id, value=ans)
+            return False, [TextSendMessage(text='如果你已經解開數獨與上方框框的關係，可以試著將解出的歌譜唱給你的基督徒朋友聽？')]
+        elif ans == '$Q3_no':
+            db.upsert_selection_value(
+                userid=self.userid, storyid=self.id, value=ans)
+            return False, [TextSendMessage(text='加油加油！')]
+        elif ans == '$Q3_yes_2':
+            db.upsert_selection_value(
+                userid=self.userid, storyid=self.id, value=ans)
+            return False, [TextSendMessage(text='這是一首耳熟能詳，且與天使有關的聖誕詩歌唷')]
+        elif ans == '$Q3_no_2':
+            db.upsert_selection_value(
+                userid=self.userid, storyid=self.id, value=ans)
+            return False, [TextSendMessage(text='加油加油！')]
+        else:
+            selection_value = db.get_selection_value_by_userid_and_storyid(
+                userid=self.userid, storyid=self.id)
+            if selection_value is None and retry_count < 5:
+                # not provided hint yet
                 return False, [TextSendMessage(text=self.reply_messages_wrong[1])]
-        return False, [TextSendMessage(text=self.reply_messages_wrong[0])]
+            elif selection_value is None and (retry_count % 5) == 0:
+                # not provided hint yet and first retry up to 5
+                return False, [
+                    TextSendMessage(text='需要提示嗎？',
+                                    quick_reply=QuickReply(
+                                        items=[
+                                            QuickReplyButton(
+                                                action=PostbackAction(
+                                                    label='是', data='$Q3_yes', display_text='是')
+                                            ),
+                                            QuickReplyButton(
+                                                action=PostbackAction(
+                                                    label='否', data='$Q3_no', display_text='否')
+                                            )
+                                        ]
+                                    )
+                                    )
+                ]
+            elif (selection_value == '$Q3_yes' or selection_value == '$Q3_yes_2') and ((retry_count-5) % 3) == 0:
+                return False, [
+                    TextSendMessage(text='需要再來點提示嗎？',
+                                    quick_reply=QuickReply(
+                                        items=[
+                                            QuickReplyButton(
+                                                action=PostbackAction(
+                                                    label='是', data='$Q3_yes_2', display_text='是')
+                                            ),
+                                            QuickReplyButton(
+                                                action=PostbackAction(
+                                                    label='否', data='$Q3_no_2', display_text='否')
+                                            )
+                                        ]
+                                    )
+                                    )
+                ]
 
 
 class P17(Story):
@@ -595,8 +657,8 @@ class Question4(Story):
                 check_Str += 1
             if ans.find(self.ans[a]) == a:
                 check_sequence += 1
-        if retry_count > 15:
-            return self.show_ans_over_try()
+        # if retry_count > 15:
+        #     return self.show_ans_over_try()
         if force_correct:
             # force correct answer
             return self.show_ans_if_force_correct()
@@ -644,8 +706,8 @@ class Question5(Story):
 
     def check_ans(self, ans, force_correct=False, retry_count=0):
         '''return (True, Messages:list), Message is empty list if ans is correct, otherwise need to throw error message to reply to linbot'''
-        if retry_count > 15:
-            return self.show_ans_over_try()
+        # if retry_count > 15:
+        #     return self.show_ans_over_try()
         if force_correct:
             # force correct answer
             return self.show_ans_if_force_correct()
@@ -683,8 +745,8 @@ class Question6_a(Story):
 
     def check_ans(self, ans, force_correct=False, retry_count=0):
         '''return (True, Messages:list), Message is empty list if ans is correct, otherwise need to throw error message to reply to linbot'''
-        if retry_count > 15:
-            return self.show_ans_over_try()
+        # if retry_count > 15:
+        #     return self.show_ans_over_try()
         if force_correct:
             # force correct answer
             return self.show_ans_if_force_correct()
@@ -734,7 +796,7 @@ class Question6_b(Story):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(args, kwargs)
         self.id = 620
-        self.q6_uuid = kwargs.get('q6_uuid', '')
+        self.userid = kwargs.get('userid', '')
         self.story_name = '拯救者(b)'
         self.pre_messages = [
             f'''強者同學竟然還做了兩個版本，可以選挑戰版還是正常版喔''']
@@ -754,9 +816,10 @@ class Question6_b(Story):
                             text='適合不想太燒腦的你',
                             thumbnail_image_url=f"{APP_URL}/static/img/6_b_easy.png",
                             actions=[
-                                MessageAction(
+                                PostbackTemplateAction(
                                     label='正常版',
-                                    text='正常版'
+                                    text='正常版',
+                                    data='$Q6b_normal'
                                 )
                             ]
                         ),
@@ -765,9 +828,10 @@ class Question6_b(Story):
                             text='來挑戰看看吧',
                             thumbnail_image_url=f"{APP_URL}/static/img/6_b_hard.jpg",
                             actions=[
-                                MessageAction(
+                                PostbackTemplateAction(
                                     label='挑戰版',
-                                    text='挑戰版'
+                                    text='挑戰版',
+                                    data='$Q6b_hard'
                                 )
                             ]
                         )
@@ -781,18 +845,20 @@ class Question6_b(Story):
 
     def check_ans(self, ans, force_correct=False, retry_count=0):
         '''return (True, Messages:list), Message is empty list if ans is correct, otherwise need to throw error message to reply to linbot'''
-        global STORY_GLOBAL
         if force_correct:
             # force correct answer
             return False, [TextSendMessage(text=msg) for msg in self.reply_messages_wrong]
-        if ans != '正常版' and ans != '挑戰版':
-            STORY_GLOBAL[self.q6_uuid] = 0
+        if ans != '$Q6b_hard' and ans != '$Q6b_normal':
+            db.upsert_selection_value(
+                userid=self.userid, storyid=self.id, value='0')
             return False, [TextSendMessage(text=msg) for msg in self.reply_messages_wrong]
-        elif ans == '正常版':
-            STORY_GLOBAL[self.q6_uuid] = 1
+        elif ans == '$Q6b_normal':
+            db.upsert_selection_value(
+                userid=self.userid, storyid=self.id, value=ans)
             return True, []
-        elif ans == '挑戰版':
-            STORY_GLOBAL[self.q6_uuid] = 2
+        elif ans == '$Q6b_hard':
+            db.upsert_selection_value(
+                userid=self.userid, storyid=self.id, value=ans)
             return True, []
 
 
@@ -800,7 +866,7 @@ class Question6_b_1(Story):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(args, kwargs)
         self.id = 621
-        self.q6_uuid = kwargs.get('q6_uuid', '')
+        self.userid = kwargs.get('userid', '')
         self.story_name = '拯救者(b)'
         self.pre_messages = []
         self.post_messages = ['我問問看！嗯嗯他說答對了！']
@@ -814,37 +880,42 @@ class Question6_b_1(Story):
         ]
 
     def get_main_message(self):
-        global STORY_GLOBAL
-        if STORY_GLOBAL[self.q6_uuid] == 1:
+        selection_value = db.get_selection_value_by_userid_and_storyid(
+            userid=self.userid, storyid=620)  # storyid is from the previous story, which id = 620
+        if selection_value == '$Q6b_normal':
             return [
-                ImageSendMessage(original_content_url=f"{APP_URL}/static/img/6_b_Hosannah_vme_w_word.png", preview_image_url=f"{APP_URL}/static/img/6_b_Hosannah_vme_w_word.png")
+                ImageSendMessage(original_content_url=f"{APP_URL}/static/img/6_b_Hosannah_vme_w_word.png",
+                                 preview_image_url=f"{APP_URL}/static/img/6_b_Hosannah_vme_w_word.png")
             ]
-        elif STORY_GLOBAL[self.q6_uuid] == 2:
+        elif selection_value == '$Q6b_hard':
             return [
-                ImageSendMessage(original_content_url=f"{APP_URL}/static/img/6_b_Hosannah_vme_no_word.png", preview_image_url=f"{APP_URL}/static/img/6_b_Hosannah_vme_no_word.png")
+                ImageSendMessage(original_content_url=f"{APP_URL}/static/img/6_b_Hosannah_vme_no_word.png",
+                                 preview_image_url=f"{APP_URL}/static/img/6_b_Hosannah_vme_no_word.png")
             ]
 
     def check_ans(self, ans, force_correct=False, retry_count=0):
         '''return (True, Messages:list), Message is empty list if ans is correct, otherwise need to throw error message to reply to linbot'''
-        global STORY_GLOBAL
-        if retry_count > 15:
-            return self.show_ans_over_try()
+        # if retry_count > 15:
+        #     return self.show_ans_over_try()
         if force_correct:
             # force correct answer
             return self.show_ans_if_force_correct()
+
+        selection_value = db.get_selection_value_by_userid_and_storyid(
+            userid=self.userid, storyid=620)  # storyid is from the previous story, which id = 620
         if ans == 'anna' or ans == 'Anna':
             return True, [TextSendMessage(text=msg, sender=None) for msg in self.post_messages]
-        if retry_count >= 5:
+        if (retry_count % 5) == 0 and selection_value == '$Q6b_hard':
             return False, [
                 TextSendMessage(text=self.reply_messages_wrong[1],
                                 quick_reply=QuickReply(
                     items=[
                         QuickReplyButton(
                             action=PostbackAction(
-                                label='重新選擇吧', data='$Q6_reset', display_text='如果後悔了想更改挑戰模式的話，可以重選喔！')
+                                label='重新選擇吧', data='$Q6_reset', display_text='怎麼感覺哪裡怪怪的，再想一下好了！\n如果後悔了想更改挑戰模式的話，可以重選喔！')
                         )
                     ]
-                ),
+                )
                 )
             ]
         if ans != 'anna' and ans != 'Anna':
@@ -878,8 +949,8 @@ class Question7(Story):
 
     def check_ans(self, ans, force_correct=False, retry_count=0):
         '''return (True, Messages:list), Message is empty list if ans is correct, otherwise need to throw error message to reply to linbot'''
-        if retry_count > 15:
-            return self.show_ans_over_try()
+        # if retry_count > 15:
+        #     return self.show_ans_over_try()
         if force_correct:
             # force correct answer
             return True, [TextSendMessage(text=f'''正確答案是：{self.ans}\n真是太感謝你了！''', sender=None)]
@@ -921,7 +992,7 @@ class Ending(Story):
                         "contents": [
                             {
                                 "type": "text",
-                                "text": "週六小組裡到底分享了甚麼信息呢？ 點選以下小組信息就可以看囉。中間在哪一題卡住了嗎？點選解題思路，看看各題的解題辦法！",
+                                "text": "週六小組裡到底分享了甚麼信息呢？點選以下小組信息閱讀完整版。\n中間在哪一題卡住了嗎？點選解題思路，看看各題的解題辦法！",
                                 "wrap": True
                             }
                         ],
@@ -938,7 +1009,7 @@ class Ending(Story):
                                 "action": {
                                     "type": "message",
                                     "label": "小組訊息",
-                                    "text": "https://drive.google.com/file/d/1Hgr4jnakPflcH1WV5F3EbUJ8PtN-vIVw/view?usp=share_link"
+                                    "text": "小組訊息\nhttps://drive.google.com/file/d/1Hgr4jnakPflcH1WV5F3EbUJ8PtN-vIVw/view?usp=share_link"
                                 }
                             },
                             {
@@ -946,7 +1017,7 @@ class Ending(Story):
                                 "action": {
                                     "type": "message",
                                     "label": "解題思路",
-                                    "text": "https://drive.google.com/file/d/1D7Ysl2IS_fTzHvCxvxpQoU59TwN6Rz5J/view?usp=share_link"
+                                    "text": "解題思路\nhttps://drive.google.com/file/d/1D7Ysl2IS_fTzHvCxvxpQoU59TwN6Rz5J/view?usp=share_link"
                                 }
                             }
                         ],
@@ -992,7 +1063,7 @@ class Ending(Story):
                                 "action": {
                                     "type": "message",
                                     "label": "團隊介紹",
-                                    "text": "我們是一群來自台北古亭聖教會的社青和青年。我們熱衷解謎，從某一青年就讀的高中設計了linebot解謎，促發這次活動的設計。歷經5個月的技術課程和題目劇情的討論，終於在今年底正式推出！"
+                                    "text": "團隊介紹\n我們是一群來自台北古亭聖教會的社青和青年。我們熱衷解謎，從某一青年就讀的高中設計了linebot解謎，促發這次活動的設計。歷經5個月的技術課程和題目劇情的討論，終於在今年底正式推出！"
                                 }
                             },
                             {
@@ -1000,7 +1071,7 @@ class Ending(Story):
                                 "action": {
                                     "type": "message",
                                     "label": "奉獻資訊",
-                                    "text": '''感謝您的擺上，奉獻資訊如下，煩請於備註中填寫"Line"，以利司庫同工辨認。 第一銀行(銀行代碼：007)：172-10-115645，若您需要奉獻收據，請填寫以下表單。https://docs.google.com/forms/d/1H0WvivuNyGX4RnSz3nuiJ9MUvd8PlykM74d7VpcoQOI/edit'''
+                                    "text": '''奉獻資訊\n感謝您的擺上，奉獻資訊如下，煩請於備註中填寫"Line"，以利司庫同工辨認。\n第一銀行(銀行代碼：007)\n帳號：172-10-115645\n若您需要奉獻收據，請填寫以下表單。https://docs.google.com/forms/d/e/1FAIpQLSfKnLorNmQ00Vx_qKEPKgssHsZA3T0uHlN0RHHdiUDqdhmB1Q/viewform?usp=sharing'''
                                 }
                             }
                         ],

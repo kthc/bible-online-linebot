@@ -63,7 +63,7 @@ def help(event, key=None):
         user_id=event.source.user_id
         profile=line_bot_api.get_profile(user_id)
         user_name=profile.display_name
-        s_mang = Story_Manager(user_name)
+        s_mang = Story_Manager(user_name, user_id=user_id)
         db.delete_user(user_id)
         db.add_new_user(user_id)
         s_mang.show_welcome_story(event)
@@ -73,7 +73,7 @@ def help(event, key=None):
         user_id=event.source.user_id
         profile=line_bot_api.get_profile(user_id)
         user_name=profile.display_name
-        s_mang = Story_Manager(user_name)
+        s_mang = Story_Manager(user_name, user_id=user_id)
         story_id = db.get_storyid_by_userid(user_id)
         story = s_mang.get_story(story_id)
         if story:
@@ -87,20 +87,22 @@ def help(event, key=None):
                     messages=[TextSendMessage(text=f"找不到你的關卡!?", sender=Sender(name='古亭智能小編', icon_url=f"{APP_URL}/static/img/admin.png"))]
                     )
         help_done = True
-    elif key == "-force-next" or key.lower() == "sos":
+    elif key == "-force-next" or key.lower() == "skip":
         print(f"{key} help function")
         user_id=event.source.user_id
         profile=line_bot_api.get_profile(user_id)
         user_name=profile.display_name
-        s_mang = Story_Manager(user_name)
+        s_mang = Story_Manager(user_name, user_id=user_id)
         story_id = db.get_storyid_by_userid(user_id)
+        cur_retry = db.get_retry_count_by_userid(user_id)
         end = s_mang.is_end_story(story_id)
         if end:
             return
-        ok = s_mang.check_answer(event, story_id, "", force_correct=True)
+        ok = s_mang.check_answer(event, story_id, "", force_correct=True, retry_count=cur_retry+1) # add one because it start from 0, so the first trial will be 0+1 = 1 attempt
         if ok and not end:
             next_story = s_mang.next_story(story_id)
             db.update_story_id(user_id, next_story.id)
+            db.clear_retry_count(user_id)
         else:
             line_bot_api.reply_message(
                     event.reply_token,
@@ -112,7 +114,7 @@ def help(event, key=None):
         user_id=event.source.user_id
         profile=line_bot_api.get_profile(user_id)
         user_name=profile.display_name
-        s_mang = Story_Manager(user_name)
+        s_mang = Story_Manager(user_name, user_id=user_id)
         story_id = db.get_storyid_by_userid(user_id)
         last_story = s_mang.last_story(story_id)
         if last_story:
