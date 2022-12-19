@@ -56,5 +56,12 @@ def get_file_property():
 def convert_wav_2_m4a():
     subprocess.call([r"tool\ffmpeg.exe", '-i', f"C:\code\LongkouMarketLineBot\龍口錄音-20221111T062231Z-001\龍口錄音\龍口錄音26.wav", f'./static/audio/story_audio/audio_26.m4a'])
 
+def test_q1():
+    ans = '亞金，以律，以利亞撒，馬但，雅各，約瑟，耶穌'
+    ans = ans.strip()
+    pattern = r"[\s\W]"
+    fixed_ans = re.sub(pattern, "，", ans)
+    print(fixed_ans)
+
 if __name__=='__main__':
-    convert_2_m4a()
+    test_q1()

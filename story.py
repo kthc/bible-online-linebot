@@ -360,7 +360,7 @@ class Question1(Story):
         '''return (True, Messages:list), Message is empty list if ans is correct, otherwise need to throw error message to reply to linbot'''
         correct_ans_list = self.ans.split("，")
         pattern = r"[\s\W]"
-        fixed_ans = re.sub(pattern, "，", ans)
+        fixed_ans = re.sub(pattern, "，", ans.strip())
         if retry_count > 15:
             return self.show_ans_over_try()
         if force_correct:
