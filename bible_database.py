@@ -180,21 +180,19 @@ class BibleDB:
         cur.execute(
         f"""SELECT * FROM {self.user_table} WHERE UserID='{userid}'; """)
         users = cur.fetchall()
-        cur.close()
         if len(users) > 0:
             sql = f''' UPDATE {self.user_table}
               SET RetryCount = %s
               WHERE UserID = %s'''
             cur.execute(sql, (0,userid))
             self.con.commit()
-            cur.close()
+        cur.close()
 
     def increase_1_retry_count(self, userid):
         cur = self.con.cursor()
         cur.execute(
         f"""SELECT * FROM {self.user_table} WHERE UserID='{userid}'; """)
         users = cur.fetchall()
-        cur.close()
         if len(users) > 0:
             cur_retry = self.get_retry_count_by_userid(userid)
             sql = f''' UPDATE {self.user_table}
@@ -202,7 +200,7 @@ class BibleDB:
               WHERE UserID = %s'''
             cur.execute(sql, (cur_retry+1,userid))
             self.con.commit()
-            cur.close()
+        cur.close()
 
     def check_selection_exist(self, userid:str, storyid:int):
         cur = self.con.cursor()
@@ -235,19 +233,17 @@ class BibleDB:
         cur.execute(
         f"""SELECT value FROM {self.selection_table} WHERE UserID='{userid}' AND CurStoryID={storyid};""")
         records = cur.fetchall()
-        cur.close()
         if len(records) > 0:
             sql = f''' UPDATE {self.selection_table}
               SET CurrentValue = %s
               WHERE UserID = %s AND CurStoryID = %s'''
             cur.execute(sql, (value,userid,storyid))
             self.con.commit()
-            cur.close()
         else:
             sql = f''' INSERT INTO {self.selection_table} (UserID,CurStoryID,CurrentValue) VALUES(%s,%s,%s);'''
             cur.execute(sql, (userid, storyid, value))
             self.con.commit()
-            cur.close()
+        cur.close()
 
 
 def test_db():
