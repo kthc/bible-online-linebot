@@ -231,7 +231,7 @@ class BibleDB:
     def upsert_selection_value(self, userid:str, storyid:int, value:str):
         cur = self.con.cursor()
         cur.execute(
-        f"""SELECT value FROM {self.selection_table} WHERE UserID='{userid}' AND CurStoryID={storyid};""")
+        f"""SELECT CurrentValue FROM {self.selection_table} WHERE UserID='{userid}' AND CurStoryID={storyid};""")
         records = cur.fetchall()
         if len(records) > 0:
             sql = f''' UPDATE {self.selection_table}

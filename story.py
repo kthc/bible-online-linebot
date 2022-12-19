@@ -473,12 +473,10 @@ class Question2(Story):
             return self.show_ans_if_force_correct()
         if ans == self.ans:
             return True, [TextSendMessage(text=msg) for msg in self.post_messages]
-        elif ans != self.ans or ans != "伯利恆之星":
-            return False, [TextSendMessage(text=self.reply_messages_wrong[0])]
         elif ans == "伯利恆之星":
             # some matched, some not
             return False, [TextSendMessage(text=self.reply_messages_wrong[1])]
-        elif (retry_count % 3) == 0:
+        elif (ans != self.ans or ans != "伯利恆之星") and (retry_count % 3) == 0:
             return False, [TextSendMessage(text=self.reply_messages_wrong[2])]
         else:
             # not matched any of ans
@@ -532,28 +530,31 @@ class Question3(Story):
         elif ("聽啊" in ans or "天使" in ans or "高聲唱" in ans):
             return False, [TextSendMessage(text=self.reply_messages_wrong[2])]
         elif ans == '$Q3_yes':
+            db.clear_retry_count(self.userid)
             db.upsert_selection_value(
                 userid=self.userid, storyid=self.id, value=ans)
             return False, [TextSendMessage(text='如果你已經解開數獨與上方框框的關係，可以試著將解出的歌譜唱給你的基督徒朋友聽？')]
         elif ans == '$Q3_no':
-            db.upsert_selection_value(
-                userid=self.userid, storyid=self.id, value=ans)
+            db.clear_retry_count(self.userid)
             return False, [TextSendMessage(text='加油加油！')]
         elif ans == '$Q3_yes_2':
+            db.clear_retry_count(self.userid)
             db.upsert_selection_value(
                 userid=self.userid, storyid=self.id, value=ans)
             return False, [TextSendMessage(text='這是一首耳熟能詳，且與天使有關的聖誕詩歌唷')]
         elif ans == '$Q3_no_2':
-            db.upsert_selection_value(
-                userid=self.userid, storyid=self.id, value=ans)
+            db.clear_retry_count(self.userid)
             return False, [TextSendMessage(text='加油加油！')]
         else:
             selection_value = db.get_selection_value_by_userid_and_storyid(
                 userid=self.userid, storyid=self.id)
-            if selection_value is None and retry_count < 5:
+            if selection_value is None and retry_count < 6:
                 # not provided hint yet
                 return False, [TextSendMessage(text=self.reply_messages_wrong[1])]
-            elif selection_value is None and (retry_count % 5) == 0:
+            elif selection_value is None and (retry_count % 6) != 0:
+                # not provided hint yet
+                return False, [TextSendMessage(text=self.reply_messages_wrong[1])]
+            elif selection_value is None and (retry_count % 6) == 0:
                 # not provided hint yet and first retry up to 5
                 return False, [
                     TextSendMessage(text='需要提示嗎？',
@@ -571,7 +572,7 @@ class Question3(Story):
                                     )
                                     )
                 ]
-            elif (selection_value == '$Q3_yes' or selection_value == '$Q3_yes_2') and ((retry_count-5) % 3) == 0:
+            elif (selection_value == '$Q3_yes' or selection_value == '$Q3_yes_2') and (retry_count % 4) == 0:
                 return False, [
                     TextSendMessage(text='需要再來點提示嗎？',
                                     quick_reply=QuickReply(
@@ -588,6 +589,9 @@ class Question3(Story):
                                     )
                                     )
                 ]
+            elif (selection_value == '$Q3_yes' or selection_value == '$Q3_yes_2'):
+                return False, [TextSendMessage(text=self.reply_messages_wrong[1])]
+
 
 
 class P17(Story):
@@ -794,8 +798,13 @@ class Question6_b(Story):
         self.id = 620
         self.userid = kwargs.get('userid', '')
         self.story_name = '拯救者(b)'
-        self.pre_messages = [
-            f'''強者同學竟然還做了兩個版本，可以選挑戰版還是正常版喔''']
+        selection_value = db.get_selection_value_by_userid_and_storyid(
+            userid=self.userid, storyid=620)
+        if selection_value is None:
+            self.pre_messages = [
+                f'''強者同學竟然還做了兩個版本，可以選挑戰版還是正常版喔''']
+        else:
+            self.pre_messages = []
         self.post_messages = []
         self.main_messages = []
         self.ans = ''
@@ -812,9 +821,9 @@ class Question6_b(Story):
                             text='適合不想太燒腦的你',
                             thumbnail_image_url=f"{APP_URL}/static/img/6_b_easy.png",
                             actions=[
-                                PostbackTemplateAction(
+                                PostbackAction(
                                     label='正常版',
-                                    text='正常版',
+                                    display_text='正常版',
                                     data='$Q6b_normal'
                                 )
                             ]
@@ -824,9 +833,9 @@ class Question6_b(Story):
                             text='來挑戰看看吧',
                             thumbnail_image_url=f"{APP_URL}/static/img/6_b_hard.jpg",
                             actions=[
-                                PostbackTemplateAction(
+                                PostbackAction(
                                     label='挑戰版',
-                                    text='挑戰版',
+                                    display_text='挑戰版',
                                     data='$Q6b_hard'
                                 )
                             ]
@@ -878,6 +887,7 @@ class Question6_b_1(Story):
     def get_main_message(self):
         selection_value = db.get_selection_value_by_userid_and_storyid(
             userid=self.userid, storyid=620)  # storyid is from the previous story, which id = 620
+        print(f"user {self.userid} select {selection_value} from id 620")
         if selection_value == '$Q6b_normal':
             return [
                 ImageSendMessage(original_content_url=f"{APP_URL}/static/img/6_b_Hosannah_vme_w_word.png",
@@ -901,14 +911,14 @@ class Question6_b_1(Story):
             userid=self.userid, storyid=620)  # storyid is from the previous story, which id = 620
         if ans == 'anna' or ans == 'Anna':
             return True, [TextSendMessage(text=msg, sender=None) for msg in self.post_messages]
-        if (retry_count % 5) == 0 and selection_value == '$Q6b_hard':
+        if retry_count > 1 and (retry_count % 5) == 0 and selection_value == '$Q6b_hard':
             return False, [
-                TextSendMessage(text=self.reply_messages_wrong[1],
+                TextSendMessage(text='怎麼感覺哪裡怪怪的，再想一下好了！\n如果後悔了想更改挑戰模式的話，可以重選喔！',
                                 quick_reply=QuickReply(
                     items=[
                         QuickReplyButton(
                             action=PostbackAction(
-                                label='重新選擇吧', data='$Q6_reset', display_text='怎麼感覺哪裡怪怪的，再想一下好了！\n如果後悔了想更改挑戰模式的話，可以重選喔！')
+                                label='重新選擇吧', data='$Q6_reset', display_text='重新選擇')
                         )
                     ]
                 )
