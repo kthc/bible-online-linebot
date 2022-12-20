@@ -84,7 +84,7 @@ class Story:
     
     def hint(self, message:str=None):
         if message is None or message == '':
-            return False, [TextSendMessage(text=f'''提示:\nOoops 抱歉，本題沒有提示😵。\n如果真的卡關可以使用｢skip｣跳題🤯''')]
+            return False, [TextSendMessage(text=f'''提示：\nOoops 抱歉，本題沒有提示😵。\n如果真的卡關可以使用｢skip｣跳題🤯''')]
         else:
             return False, [TextSendMessage(text=message)]
 
@@ -993,7 +993,7 @@ class Question7(Story):
             return True, [TextSendMessage(text=f'''正確答案是：{self.ans}\n真是太感謝你了！''', sender=None)]
         
         if ans.lower() == 'help':
-            return self.hint('我卡在填字遊戲的英數等式\n填字遊戲中三個被圈起來的字…要幹嘛？\n解開了兩個圖中的等式…然後呢？')
+            return self.hint('提示:\n我卡在填字遊戲的英數等式\n填字遊戲中三個被圈起來的字…要幹嘛？\n解開了兩個圖中的等式…然後呢？')
 
         if ans == self.ans:
             return True, [TextSendMessage(text=msg, sender=None) for msg in self.post_messages]
