@@ -98,8 +98,6 @@ def create_app():
         elif msg == '$Q6_reset':
             db.clear_retry_count(user_id)
             called_helper = help(event, key='-force-prev')
-        elif msg == '$hint':
-            check_if_can_go_next_story(event, msg)
         else:
             check_if_can_go_next_story(event, msg)
 

@@ -95,6 +95,36 @@ class Story:
         if len(self.hint_list) == 0:
             return False, [TextSendMessage(text=f'''Ooops 抱歉，本題沒有提示😵。\n如果真的卡關可以使用｢skip｣跳題🤯''')]
         else:
+            if len(self.hint_list) > 4:
+                hint1 = self.hint_list[0:3]
+                hint2 = self.hint_list[3:]
+                return [
+                    TemplateSendMessage(
+                        alt_text='遊戲提示',
+                        template=CarouselTemplate(
+                            columns=[
+                                CarouselColumn(
+                                    text='',
+                                    title='提示',
+                                    actions=[PostbackTemplateAction(
+                                        label=msg['label'],
+                                        display_text=msg['label'],
+                                        data=msg['key']
+                                    ) for msg in hint1]
+                                ),
+                                CarouselColumn(
+                                    text='',
+                                    title='提示',
+                                    actions=[PostbackTemplateAction(
+                                        label=msg['label'],
+                                        display_text=msg['label'],
+                                        data=msg['key']
+                                    ) for msg in hint2]
+                                )
+                            ]
+                        )
+                    )
+                ]
             return False, [
                 TemplateSendMessage(
                     alt_text='遊戲提示',
@@ -109,7 +139,7 @@ class Story:
                     )
                 )
             ]
-    
+
     def select_hint(self, hint_key):
         for hint in self.hint_list:
             if hint['key'] == hint_key:
