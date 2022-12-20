@@ -141,7 +141,7 @@ class Story_Manager:
             next_story = self.next_story(story_id)
             if next_story:
                 next_story_messages = messages + next_story.get_pre_message() + next_story.get_main_message()
-                if len(messages) == 0:
+                if len(next_story_messages) == 0:
                     return True
                 if len(next_story_messages) > 5:
                     line_bot_api.reply_message(
