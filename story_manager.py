@@ -131,8 +131,6 @@ class Story_Manager:
         '''
         story = self.get_story(story_id)
         correct, messages = story.check_ans(ans,force_correct,retry_count)
-        if len(messages) == 0:
-            return True
         if len(messages) > 5:
             line_bot_api.reply_message(
                 event.reply_token,
@@ -143,6 +141,8 @@ class Story_Manager:
             next_story = self.next_story(story_id)
             if next_story:
                 next_story_messages = messages + next_story.get_pre_message() + next_story.get_main_message()
+                if len(messages) == 0:
+                    return True
                 if len(next_story_messages) > 5:
                     line_bot_api.reply_message(
                         event.reply_token,
