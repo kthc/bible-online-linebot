@@ -78,7 +78,7 @@ class Story_Manager:
     def set_username(self, username):
         self.user_name = username
 
-    def get_story(self, story_id):
+    def get_story(self, story_id)-> story.Story:
         '''return story instance if found'''
         for story in self.stories:
             if story_id == story.id:
@@ -130,6 +130,13 @@ class Story_Manager:
         return True if correct, else False
         '''
         story = self.get_story(story_id)
+        hint_message =  story.select_hint(ans)
+        if hint_message is not None:
+            line_bot_api.reply_message(
+                        event.reply_token,
+                        messages=hint_message
+                        )
+            return False
         correct, messages = story.check_ans(ans,force_correct,retry_count)
         if len(messages) > 5:
             line_bot_api.reply_message(
@@ -175,6 +182,7 @@ class Story_Manager:
                     event.reply_token,
                     messages=messages
                     )
+    
 
 if __name__=='__main__':
     s = Story_Manager()

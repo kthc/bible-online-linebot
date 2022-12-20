@@ -54,6 +54,8 @@ class Story:
         self.main_messages = []
         self.ans = ''
         self.reply_messages_wrong = []
+        self.hint_list = []
+        self.hint_subtitle = '\t'
 
     def get_pre_message(self):
         return [TextSendMessage(text=text) for text in self.pre_messages]
@@ -82,30 +84,36 @@ class Story:
         '''if messages not given, it will send the correct ans and post_messages of this instance'''
         return True, [TextSendMessage(text=f'''（系統偵測已作答多次，為使遊戲順利進行，將直接報出答案。請將答案複製貼上於對話框並回傳。此題答案為：{self.ans}）''', sender=None)]
 
-    def hint(self, messages: list = [], subtitle='\t'):
+    def show_hint(self):
         """if message not given, send default hint, otherwise, send hint with button template
 
         :param messages: _description_, defaults to []
-        :type messages: list, optional, give list of {'label': 'some  button text', 'text': 'some words for hint detail'}
+        :type messages: list, optional, give list of {'label': 'some  button text', 'text': 'some words for hint detail', 'key': 'hint key here'}
         :return: (False, list of SendMessages)
         :rtype: tuple
         """
-        if len(messages) == 0:
-            return False, [TextSendMessage(text=f'''提示：\nOoops 抱歉，本題沒有提示😵。\n如果真的卡關可以使用｢skip｣跳題🤯''')]
+        if len(self.hint_list) == 0:
+            return False, [TextSendMessage(text=f'''Ooops 抱歉，本題沒有提示😵。\n如果真的卡關可以使用｢skip｣跳題🤯''')]
         else:
             return False, [
                 TemplateSendMessage(
                     alt_text='遊戲提示',
                     template=ButtonsTemplate(
                         title='提示',
-                        text=subtitle,
-                        actions=[MessageTemplateAction(
+                        text=self.hint_subtitle,
+                        actions=[PostbackTemplateAction(
                             label=msg['label'],
-                            text= f"""【{msg['label']}】\n{msg['text']}"""
-                        ) for msg in messages]
+                            display_text=None,
+                            data=msg['key']
+                        ) for msg in self.hint_list]
                     )
                 )
             ]
+    
+    def select_hint(self, hint_key):
+        for hint in self.hint_list:
+            if hint['key'] == hint_key:
+                return [TextSendMessage(text=hint['key'], sender=None)]
 
 
 class SimplePostbackStory(Story):
@@ -394,7 +402,7 @@ class Question1(Story):
             return self.show_ans_if_force_correct()
 
         if ans.lower() == 'help':
-            return self.hint()
+            return self.show_hint()
 
         if type(ans) is str:
             ans_list = fixed_ans.split("，")
@@ -485,6 +493,13 @@ class Question2(Story):
             "不是啦，這個詞沒出現在聖經過，是不是多打了些甚麼字呢？",
             "誒等下，我看到在題目旁邊還有隻雞被關在籠子裡的小插圖，不知道對你有沒有幫助？"
         ]
+        self.hint_list = [
+            dict(label='蔣渭水的腳步會走上怎麼樣的路？',
+                 text='台灣哪條公路是以蔣渭水命名的呢？', key='$Q2_hint_1'),
+            dict(label='你家到底在哪裡？', text='台灣四大超商中的一間，引用自其著名的廣告標語', key='$Q2_hint_2'),
+            dict(label='任意門暗指甚麼？', text='都到宜蘭了，怎麼還出現了有別的縣市名的店家呢？', key='$Q2_hint_3'),
+            dict(label='路上怎麼會有床？', text='床代指休憩處，附近有甚麼可以休憩的地方呢？', key='$Q2_hint_4'),
+        ]
 
     def get_pre_message(self):
         location = [LocationSendMessage(title='Google maps', address='100台北市中正區和平西路二段15號',
@@ -502,13 +517,7 @@ class Question2(Story):
             return self.show_ans_if_force_correct()
 
         if ans.lower() == 'help':
-            return self.hint([
-                dict(label='蔣渭水的腳步會走上怎麼樣的路？', text='台灣哪條公路是以蔣渭水命名的呢？'),
-                dict(label='你家到底在哪裡？', text='台灣四大超商中的一間，引用自其著名的廣告標語'),
-                dict(label='任意門暗指甚麼？', text='都到宜蘭了，怎麼還出現了有別的縣市名的店家呢？'),
-                dict(label='路上怎麼會有床？', text='床代指休憩處，附近有甚麼可以休憩的地方呢？'),
-            ]
-            )
+            return self.show_hint()
 
         if ans == self.ans:
             return True, [TextSendMessage(text=msg) for msg in self.post_messages]
@@ -540,6 +549,16 @@ class Question3(Story):
             "好像有點眉目了！再接著想想",
             "不是啦，這個不是天使說的暗號吧？再想想"
         ]
+        self.hint_list = [
+            dict(label='我破解數獨了，要如何填入上方框框中？',
+                 text='彩虹在聖經中是特殊的記號，在之後的謎題裡也會被使用到', key='$Q3_hint_1'),
+            dict(label='我解開數獨上的框框了，但…？',
+                 text='不知道這是哪首歌嗎? 或許可以唱給身邊的基督徒朋友聽聽，他可能會知道？', key='$Q3_hint_2'),
+            dict(label='我的基督徒朋友也不知道…',
+                 text='這是一首耳熟能詳，且與天使有關的聖誕詩歌', key='$Q3_hint_3'),
+            dict(label='為什麼google不出答案…',
+                 text='歌名中的第一個字是個感官動詞。（記得找到國語版才能解出正確答案）', key='$Q3_hint_4'),
+        ]
 
     def get_main_message(self):
         return [ImageSendMessage(original_content_url=f"{APP_URL}/static/img/3_New_born_king_sudoku.png", preview_image_url=f"{APP_URL}/static/img/3_New_born_king_sudoku.png")]
@@ -553,16 +572,7 @@ class Question3(Story):
             return self.show_ans_if_force_correct()
 
         if ans.lower() == 'help':
-            return self.hint([
-                dict(label='我破解數獨了，要如何填入上方框框中？',
-                     text='彩虹在聖經中是特殊的記號，在之後的謎題裡也會被使用到'),
-                dict(label='我解開數獨上的框框了，但…？',
-                     text='不知道這是哪首歌嗎? 或許可以唱給身邊的基督徒朋友聽聽，他可能會知道？'),
-                dict(label='我的基督徒朋友也不知道…', text='這是一首耳熟能詳，且與天使有關的聖誕詩歌'),
-                dict(label='為什麼google不出答案…',
-                     text='歌名中的第一個字是個感官動詞。（記得找到國語版才能解出正確答案）'),
-            ]
-            )
+            return self.show_hint()
 
         # replace Chinese character for the same meaning
         if ("于" in ans or "予" in ans or "與" in ans):
@@ -698,6 +708,10 @@ class Question4(Story):
             "很接近了，但字的順序好像怪怪的诶",
             "好像有頭緒了，但還差一點"
         ]
+        self.hint_list = [
+            dict(label='這個圖…該從何開始…？',
+                 text='古人云：｢物以類聚、人以群分｣，所以…字以色分', key='$Q4_hint_1')
+        ]
 
     def check_ans(self, ans, force_correct=False, retry_count=0):
         check_sequence = 0
@@ -714,10 +728,7 @@ class Question4(Story):
             return self.show_ans_if_force_correct()
 
         if ans.lower() == 'help':
-            return self.hint([
-                dict(label='這個圖…該從何開始…？', text='古人云：｢物以類聚、人以群分｣，所以…字以色分')
-            ]
-            )
+            return self.show_hint()
 
         if type(ans) is str:
             if ans == self.ans:
@@ -754,6 +765,10 @@ class Question5(Story):
             "為了防止猜題的可能，請輸入實際解出的國字唷",
             "怎麼感覺哪裡怪怪的，再想一下好了"
         ]
+        self.hint_list = [
+            dict(label='提示藏在哪？', text='提示就藏在圖片下方方框中的頭跟尾，簡稱藏頭詩、藏尾詩', key='$Q5_hint_1'),
+            dict(label='提示躲在哪？', text='第三個圖的填字都填好了囉，順便在第二直行裡藏了提示。', key='$Q5_hint_2')
+        ]
 
     def get_main_message(self):
         return [
@@ -770,11 +785,7 @@ class Question5(Story):
             return self.show_ans_if_force_correct()
 
         if ans.lower() == 'help':
-            return self.hint([
-                dict(label='提示藏在哪？', text='提示就藏在圖片下方方框中的頭跟尾，簡稱藏頭詩、藏尾詩'),
-                dict(label='提示躲在哪？', text='第三個圖的填字都填好了囉，順便在第二直行裡藏了提示。')
-            ]
-            )
+            return self.show_hint()
 
         if self.ans == ans:
             return True, [TextSendMessage(text=msg) for msg in self.post_messages]
@@ -801,6 +812,15 @@ class Question6_a(Story):
         self.main_messages = ''
         self.ans = 'yasha'
         self.reply_messages_wrong = ["怎麼感覺哪裡怪怪的，再想一下好了"]
+        self.hint_list = [
+            dict(label='第1小題', text='平方 ： 1^2 = 1', key='$Q6a_hint_1'),
+            dict(label='第2小題', text='相加 ： 4+3 = 1+6', key='$Q6a_hint_2'),
+            dict(label='第3小題', text='先乘後加 ： 8*2+1 = 17', key='$Q6a_hint_3'),
+            dict(label='第4小題', text='相乘 ： 2*3 = 6，（記得先將注音與英文字母一樣邏輯轉換為數字）',
+                 key='$Q6a_hint_4'),
+            dict(label='第5小題', text='最大公因數 ： 9=gcd(63,117)', key='$Q6a_hint_5'),
+        ]
+        self.hint_subtitle = "注意：提示會直接說出運算方式，謹慎點選，避免暴雷。"
 
     def get_main_message(self):
         return [
@@ -817,14 +837,7 @@ class Question6_a(Story):
             return self.show_ans_if_force_correct()
 
         if ans.lower() == 'help':
-            return self.hint([
-                dict(label='第1小題', text='平方 ： 1^2 = 1'),
-                dict(label='第2小題', text='相加 ： 4+3 = 1+6'),
-                dict(label='第3小題', text='先乘後加 ： 8*2+1 = 17'),
-                dict(label='第4小題', text='相乘 ： 2*3 = 6，（記得先將注音與英文字母一樣邏輯轉換為數字）'),
-                dict(label='第5小題', text='最大公因數 ： 9=gcd(63,117)'),
-            ], subtitle="注意：提示會直接說出運算方式，謹慎點選，避免暴雷。"
-            )
+            return self.show_hint()
 
         if self.ans == ans.strip().lower():
             return True, [TextSendMessage(text=msg) for msg in self.post_messages]
@@ -984,7 +997,7 @@ class Question6_b_1(Story):
             return self.show_ans_if_force_correct()
 
         if ans.lower() == 'help':
-            return self.hint()
+            return self.show_hint()
 
         selection_value = db.get_selection_value_by_userid_and_storyid(
             userid=self.userid, storyid=620)  # storyid is from the previous story, which id = 620
@@ -1021,6 +1034,14 @@ class Question7(Story):
         self.reply_messages_wrong = [
             "怎麼感覺哪裡怪怪的，再想一下好了"
         ]
+        self.hint_list = [
+            dict(label='我卡在填字遊戲的英數等式',
+                 text='每個英文字母所代表的數字為該字母在填字遊戲出現過的次數', key='$Q7_hint_1'),
+            dict(label='填字遊戲中三個被圈起來的字…要幹嘛？',
+                 text='將這三個被圈起來的英文字母套用到地圖下方的等式中', key='$Q7_hint_2'),
+            dict(label='解開了兩個圖中的等式…然後呢？',
+                 text='試著在地圖中找到解出的英文字母與數字，取交集就能縮小範圍拉！', key='$Q7_hint_3')
+        ]
 
     def get_main_message(self):
         return [
@@ -1041,12 +1062,7 @@ class Question7(Story):
             return True, [TextSendMessage(text=f'''正確答案是：{self.ans}\n真是太感謝你了！''', sender=None)]
 
         if ans.lower() == 'help':
-            return self.hint([
-                dict(label='我卡在填字遊戲的英數等式', text='每個英文字母所代表的數字為該字母在填字遊戲出現過的次數'),
-                dict(label='填字遊戲中三個被圈起來的字…要幹嘛？', text='將這三個被圈起來的英文字母套用到地圖下方的等式中'),
-                dict(label='解開了兩個圖中的等式…然後呢？', text='試著在地圖中找到解出的英文字母與數字，取交集就能縮小範圍拉！')
-            ]
-            )
+            return self.show_hint()
 
         if ans == self.ans:
             return True, [TextSendMessage(text=msg, sender=None) for msg in self.post_messages]
@@ -1103,7 +1119,7 @@ class Ending(Story):
                                 "action": {
                                     "type": "message",
                                     "label": "小組訊息",
-                                    "text": "小組訊息\nhttps://drive.google.com/file/d/1Hgr4jnakPflcH1WV5F3EbUJ8PtN-vIVw/view?usp=share_link"
+                                    "text": "小組訊息"
                                 }
                             },
                             {
@@ -1111,7 +1127,7 @@ class Ending(Story):
                                 "action": {
                                     "type": "message",
                                     "label": "解題思路",
-                                    "text": "解題思路\nhttps://drive.google.com/file/d/1D7Ysl2IS_fTzHvCxvxpQoU59TwN6Rz5J/view?usp=share_link"
+                                    "text": "解題思路"
                                 }
                             }
                         ],
@@ -1157,7 +1173,7 @@ class Ending(Story):
                                 "action": {
                                     "type": "message",
                                     "label": "團隊介紹",
-                                    "text": "團隊介紹\n我們是一群來自台北古亭聖教會的社青和青年。我們熱衷解謎，從某一青年就讀的高中設計了linebot解謎，促發這次活動的設計。歷經5個月的技術課程和題目劇情的討論，終於在今年底正式推出！"
+                                    "text": "團隊介紹"
                                 }
                             },
                             {
@@ -1165,7 +1181,7 @@ class Ending(Story):
                                 "action": {
                                     "type": "message",
                                     "label": "奉獻資訊",
-                                    "text": '''奉獻資訊\n感謝您的擺上，奉獻資訊如下，煩請於備註中填寫"Line"，以利司庫同工辨認。\n第一銀行(銀行代碼：007)\n帳號：172-10-115645\n若您需要奉獻收據，請填寫以下表單。https://docs.google.com/forms/d/e/1FAIpQLSfKnLorNmQ00Vx_qKEPKgssHsZA3T0uHlN0RHHdiUDqdhmB1Q/viewform?usp=sharing'''
+                                    "text": '''奉獻資訊'''
                                 }
                             }
                         ],
@@ -1199,6 +1215,14 @@ class Ending(Story):
 
     def check_ans(self, ans, force_correct=False, retry_count=0):
         '''return (True, Messages:list), Message is empty list if ans is correct, otherwise need to throw error message to reply to linbot'''
+        if ans == '奉獻資訊':
+            return False, [TextSendMessage(text='感謝您的擺上，奉獻資訊如下，煩請於備註中填寫"Line"，以利司庫同工辨認。\n第一銀行(銀行代碼：007)\n帳號：172-10-115645\n若您需要奉獻收據，請填寫以下表單。https://docs.google.com/forms/d/e/1FAIpQLSfKnLorNmQ00Vx_qKEPKgssHsZA3T0uHlN0RHHdiUDqdhmB1Q/viewform?usp=sharing')]
+        elif ans == '團隊介紹':
+            return False, [TextSendMessage(text='我們是一群來自台北古亭聖教會的社青和青年。我們熱衷解謎，從某一青年就讀的高中設計了linebot解謎，促發這次活動的設計。歷經5個月的技術課程和題目劇情的討論，終於在今年底正式推出！')]
+        elif ans == '小組訊息':
+            return False, [TextSendMessage(text='https://drive.google.com/file/d/1Hgr4jnakPflcH1WV5F3EbUJ8PtN-vIVw/view?usp=share_link')]
+        elif ans == '解題思路':
+            return False, [TextSendMessage(text='https://drive.google.com/file/d/1D7Ysl2IS_fTzHvCxvxpQoU59TwN6Rz5J/view?usp=share_link')]
         return False, []
 
 
