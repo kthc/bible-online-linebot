@@ -103,7 +103,7 @@ class Story:
                         text=self.hint_subtitle,
                         actions=[PostbackTemplateAction(
                             label=msg['label'],
-                            display_text=None,
+                            display_text=msg['label'],
                             data=msg['key']
                         ) for msg in self.hint_list]
                     )
