@@ -84,7 +84,7 @@ class Story:
     
     def hint(self, message:str=None):
         if message is None or message == '':
-            return False, [TextSendMessage(text=f'''提示:\nOoops 抱歉，本題沒有提示😵。\n如果真的卡關可以使用｢skip｣跳題🤯''')]
+            return False, [TextSendMessage(text=f'''提示：\nOoops 抱歉，本題沒有提示😵。\n如果真的卡關可以使用｢skip｣跳題🤯''')]
         else:
             return False, [TextSendMessage(text=message)]
 
@@ -482,7 +482,7 @@ class Question2(Story):
             return self.show_ans_if_force_correct()
 
         if ans.lower() == 'help':
-            return self.hint('''提示:\n蔣渭水的腳步會走上怎麼樣的路？\n你家到底在哪裡？\n任意門暗指甚麼？\n路上怎麼會有床？''')
+            return self.hint('''提示：\n蔣渭水的腳步會走上怎麼樣的路？\n你家到底在哪裡？\n任意門暗指甚麼？\n路上怎麼會有床？''')
 
         if ans == self.ans:
             return True, [TextSendMessage(text=msg) for msg in self.post_messages]
@@ -527,7 +527,7 @@ class Question3(Story):
             return self.show_ans_if_force_correct()
 
         if ans.lower() == 'help':
-            return self.hint('''提示:\n我破解數獨了，要如何填入上方框框中？\n我解開數獨上的框框了，但…？''')
+            return self.hint('''提示：\n我破解數獨了，要如何填入上方框框中？\n我解開數獨上的框框了，但…？''')
 
         # replace Chinese character for the same meaning
         if ("于" in ans or "予" in ans or "與" in ans):
@@ -680,7 +680,7 @@ class Question4(Story):
             return self.show_ans_if_force_correct()
         
         if ans.lower() == 'help':
-            return self.hint('''提示:\n這個圖…該從何開始…？''')
+            return self.hint('''提示：\n這個圖…該從何開始…？''')
 
         if type(ans) is str:
             if ans == self.ans:
@@ -733,7 +733,7 @@ class Question5(Story):
             return self.show_ans_if_force_correct()
 
         if ans.lower() == 'help':
-            return self.hint('''提示:\n提示藏在哪？\n提示躲在哪？''')
+            return self.hint('''提示：\n提示藏在哪？\n提示躲在哪？''')
 
         if self.ans == ans:
             return True, [TextSendMessage(text=msg) for msg in self.post_messages]
@@ -776,7 +776,7 @@ class Question6_a(Story):
             return self.show_ans_if_force_correct()
 
         if ans.lower() == 'help':
-            return self.hint('''提示:\n注意：提示會直接說出運算方式，謹慎點選，避免暴雷。\n第1小題\n第2小題\n第3小題\n第4小題\n第5小題''')
+            return self.hint('''提示：\n注意：提示會直接說出運算方式，謹慎點選，避免暴雷。\n第1小題\n第2小題\n第3小題\n第4小題\n第5小題''')
 
         if self.ans == ans.strip().lower():
             return True, [TextSendMessage(text=msg) for msg in self.post_messages]
@@ -993,7 +993,7 @@ class Question7(Story):
             return True, [TextSendMessage(text=f'''正確答案是：{self.ans}\n真是太感謝你了！''', sender=None)]
         
         if ans.lower() == 'help':
-            return self.hint('我卡在填字遊戲的英數等式\n填字遊戲中三個被圈起來的字…要幹嘛？\n解開了兩個圖中的等式…然後呢？')
+            return self.hint('提示：\n我卡在填字遊戲的英數等式\n填字遊戲中三個被圈起來的字…要幹嘛？\n解開了兩個圖中的等式…然後呢？')
 
         if ans == self.ans:
             return True, [TextSendMessage(text=msg, sender=None) for msg in self.post_messages]
