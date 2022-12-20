@@ -81,7 +81,12 @@ class Story:
     def show_ans_over_try(self):
         '''if messages not given, it will send the correct ans and post_messages of this instance'''
         return True, [TextSendMessage(text=f'''（系統偵測已作答多次，為使遊戲順利進行，將直接報出答案。請將答案複製貼上於對話框並回傳。此題答案為：{self.ans}）''', sender=None)]
-
+    
+    def hint(self, message:str=None):
+        if message is None or message == '':
+            return False, [TextSendMessage(text=f'''提示:\nOoops 抱歉，本題沒有提示😵。\n如果真的卡關可以使用｢skip｣跳題🤯''')]
+        else:
+            return False, [TextSendMessage(text=message)]
 
 class SimplePostbackStory(Story):
     def __init__(self, id, *args, msg='', button_label='', text_after_clicked='', sender_name='', **kwargs) -> None:
@@ -283,7 +288,7 @@ class Welcome2(Story):
         self.pre_messages = ['完全忘記我這週要帶小組！到現在還沒想好要帶什麼信息和活動...']
         self.post_messages = []
         self.main_messages = [
-            f'''這次範圍在馬太福音，你能幫幫我嗎？\n(請輸入｢可以啊｣開始遊戲；輸入｢reset｣重新開始遊戲；輸入｢skip｣跳題。)''']
+            f'''這次範圍在馬太福音，你能幫幫我嗎？\n(請輸入｢可以啊｣開始遊戲；輸入｢reset｣重新開始遊戲；輸入｢help｣申請提示；輸入｢skip｣跳題。)''']
         self.ans = '可以啊'
         self.reply_messages_correct = []
         self.reply_messages_wrong = [
@@ -345,7 +350,7 @@ class Question1(Story):
             f'''所以才需要一起想啊！拜託啦~''']
         self.post_messages = []
         self.main_messages = [
-            f'''上面有一大堆歪七扭八的線，不過旁邊有手冊的內容，它說...\n- 約瑟是耶穌的父親\n- 馬但是耶穌的祖父或曾祖父\n- 亞金不是以律的兒子\n- 雅各比以利亞撒晚出生\n- 亞金是馬但的長輩\n- 以利亞撒是亞金的孫子\n- 雅各不是耶穌的曾祖父''',
+            f'''上面有一大堆歪七扭八的線，不過旁邊有手冊的內容，它說...\n- 約瑟是耶穌的父親\n- 馬但是耶穌的祖父或曾祖父\n- 亞金不是以律的兒子\n- 雅各比以利亞撒晚出生\n- 亞金是馬但的長輩\n- 耶穌最為年幼\n- 以利亞撒是亞金的孫子\n- 雅各不是耶穌的曾祖父''',
             f'''好像是跟祖譜有關？看來要排出七代的順序...''',
             '''這種邏輯我超弱，求幫忙！\n(請自老到幼排序，並以逗號間隔人名)'''
         ]
@@ -354,7 +359,7 @@ class Question1(Story):
             "Hmm..我們是不是少寫了些人啊，這樣無法喚起我的記憶阿！！",
             "ㄟ不是，我們忘了用逗號分隔人名啦！",
             "怎麼感覺哪裡怪怪的，再想一下好了",
-            "哩來亂！你沒有輸入耶穌祖譜的相關人員！"
+            "哩來亂喔！別亂打啦！要是耶穌家譜上的人吧？我很趕著要想信息欸，別鬧！"
         ]
 
     def check_ans(self, ans, force_correct=False, retry_count=0):
@@ -367,6 +372,10 @@ class Question1(Story):
         if force_correct:
             # force correct answer
             return self.show_ans_if_force_correct()
+
+        if ans.lower() == 'help':
+            return self.hint()
+
         if type(ans) is str:
             ans_list = fixed_ans.split("，")
             if len(ans_list) != 7:
@@ -471,6 +480,10 @@ class Question2(Story):
         if force_correct:
             # force correct answer
             return self.show_ans_if_force_correct()
+
+        if ans.lower() == 'help':
+            return self.hint('''提示:\n蔣渭水的腳步會走上怎麼樣的路？\n你家到底在哪裡？\n任意門暗指甚麼？\n路上怎麼會有床？''')
+
         if ans == self.ans:
             return True, [TextSendMessage(text=msg) for msg in self.post_messages]
         elif ans == "伯利恆之星":
@@ -512,6 +525,9 @@ class Question3(Story):
         if force_correct:
             # force correct answer
             return self.show_ans_if_force_correct()
+
+        if ans.lower() == 'help':
+            return self.hint('''提示:\n我破解數獨了，要如何填入上方框框中？\n我解開數獨上的框框了，但…？''')
 
         # replace Chinese character for the same meaning
         if ("于" in ans or "予" in ans or "與" in ans):
@@ -662,6 +678,10 @@ class Question4(Story):
         if force_correct:
             # force correct answer
             return self.show_ans_if_force_correct()
+        
+        if ans.lower() == 'help':
+            return self.hint('''提示:\n這個圖…該從何開始…？''')
+
         if type(ans) is str:
             if ans == self.ans:
                 return True, [TextSendMessage(text=msg) for msg in self.post_messages]
@@ -711,6 +731,10 @@ class Question5(Story):
         if force_correct:
             # force correct answer
             return self.show_ans_if_force_correct()
+
+        if ans.lower() == 'help':
+            return self.hint('''提示:\n提示藏在哪？\n提示躲在哪？''')
+
         if self.ans == ans:
             return True, [TextSendMessage(text=msg) for msg in self.post_messages]
 
@@ -750,6 +774,10 @@ class Question6_a(Story):
         if force_correct:
             # force correct answer
             return self.show_ans_if_force_correct()
+
+        if ans.lower() == 'help':
+            return self.hint('''提示:\n注意：提示會直接說出運算方式，謹慎點選，避免暴雷。\n第1小題\n第2小題\n第3小題\n第4小題\n第5小題''')
+
         if self.ans == ans.strip().lower():
             return True, [TextSendMessage(text=msg) for msg in self.post_messages]
         else:
@@ -906,6 +934,9 @@ class Question6_b_1(Story):
         if force_correct:
             # force correct answer
             return self.show_ans_if_force_correct()
+        
+        if ans.lower() == 'help':
+            return self.hint()
 
         selection_value = db.get_selection_value_by_userid_and_storyid(
             userid=self.userid, storyid=620)  # storyid is from the previous story, which id = 620
@@ -960,6 +991,10 @@ class Question7(Story):
         if force_correct:
             # force correct answer
             return True, [TextSendMessage(text=f'''正確答案是：{self.ans}\n真是太感謝你了！''', sender=None)]
+        
+        if ans.lower() == 'help':
+            return self.hint('我卡在填字遊戲的英數等式\n填字遊戲中三個被圈起來的字…要幹嘛？\n解開了兩個圖中的等式…然後呢？')
+
         if ans == self.ans:
             return True, [TextSendMessage(text=msg, sender=None) for msg in self.post_messages]
         return False, [TextSendMessage(text=self.reply_messages_wrong[0])]
@@ -1106,31 +1141,6 @@ class Ending(Story):
             StickerSendMessage(package_id=11537, sticker_id=52002745),
             TextSendMessage(text='''作為福利，我讓你搶先看週六小組的信息內容'''),
             FlexSendMessage(alt_text='flex_contents', contents=contents),
-            # TemplateSendMessage(
-            #     alt_text='Buttons template',
-            #     template=ButtonsTemplate(
-            #         title='關於我們',
-            #         text='想更深入了解我們團隊嗎？請點選下面按鈕',
-            #         actions=[
-            #             MessageTemplateAction(
-            #                 label='搶先看週六小組的信息內容',
-            #                 text=f'搶先看週六小組的信息內容:(牧師講章)'
-            #             ),
-            #             MessageTemplateAction(
-            #                 label='解題思路',
-            #                 text=f'解題思路:TBD'
-            #             ),
-            #             MessageTemplateAction(
-            #                 label='團隊介紹',
-            #                 text=f'團隊介紹:TBD'
-            #             ),
-            #             MessageTemplateAction(
-            #                 label='奉獻資訊',
-            #                 text=f'奉獻資訊:TBD'
-            #             ),
-            #         ]
-            #     )
-            # )
         ]
         return main_msg
 
