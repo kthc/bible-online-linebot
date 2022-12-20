@@ -1068,7 +1068,7 @@ class Question7(Story):
         self.hint_list = [
             dict(label='我卡在填字遊戲的英數等式',
                  text='每個英文字母所代表的數字為該字母在填字遊戲出現過的次數', key='$Q7_hint_1'),
-            dict(label='填字遊戲中三個被圈起來的字…要幹嘛？',
+            dict(label='遊戲中三個圈起來的字…要幹嘛？',
                  text='將這三個被圈起來的英文字母套用到地圖下方的等式中', key='$Q7_hint_2'),
             dict(label='解開了兩個圖中的等式…然後呢？',
                  text='試著在地圖中找到解出的英文字母與數字，取交集就能縮小範圍拉！', key='$Q7_hint_3')

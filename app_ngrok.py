@@ -13,8 +13,7 @@ from story_manager import Story_Manager
 from helper import help
 
 from linebot.exceptions import (
-    InvalidSignatureError,
-    LineBotApiError
+    InvalidSignatureError, LineBotApiError
 )
 from linebot.models import (
     FollowEvent,
@@ -24,14 +23,13 @@ from linebot.models import (
     PostbackEvent,
     FollowEvent
 )
-import asyncio
 from waitress import serve
 
 app = Flask(__name__)
 
 def create_app():
     @app.route("/callback", methods=['POST'])
-    async def callback():
+    def callback():
         # get X-Line-Signature header value
         signature = request.headers['X-Line-Signature']
 
@@ -41,24 +39,23 @@ def create_app():
 
         # handle webhook body
         try:
-            await handler.handle(body, signature)
+            handler.handle(body, signature)
+        except LineBotApiError as e:
+            print("Got exception from LINE Messaging API: %s\n" % e.message)
+            for m in e.error.details:
+                print("  %s: %s" % (m.property, m.message))
+            print("\n")
         except InvalidSignatureError:
-            print("!!!! InvalidSignature Error !!!!")
             print("Invalid signature. Please check your channel access token/channel secret.")
             abort(400)
-        except LineBotApiError as e:
-            print("!!!! LineBotApi Error !!!!")
-            print(e)
-        except Exception as e:
-            print("!!!! Unexpected Error !!!!")
-            print(e)
+
         return 'OK'
 
     @handler.add(FollowEvent)
-    async def follow(event):
+    def follow(event):
         print(f"FollowEvent: {event}")
         user_id=event.source.user_id
-        profile = await line_bot_api.get_profile(user_id)
+        profile=line_bot_api.get_profile(user_id)
         user_name=profile.display_name
         s_mang = Story_Manager(user_name, user_id)
         print(f"user_id: {user_id}")
@@ -66,60 +63,57 @@ def create_app():
         if not db.check_user_exist(user_id):
             db.add_new_user(user_id)
             s_mang.show_welcome_story(event)
-        await asyncio.sleep(0)
                     
     @handler.add(UnfollowEvent)
-    async def unfollow(event):
+    def unfollow(event):
         print(f"UnfollowEvent: {event}")
         user_id=event.source.user_id
         print(f"user_id: {user_id}")
         db.delete_user(user_id)
-        await asyncio.sleep(0)
 
     @handler.add(MessageEvent, message=TextMessage)
-    async def handle_message(event):
+    def handle_message(event):
         user_id=event.source.user_id
-        profile = await line_bot_api.get_profile(user_id)
+        profile=line_bot_api.get_profile(user_id)
         user_name=profile.display_name
         msg = event.message.text
         print(f"user_id: {user_id}, user_name: {user_name}, input: {msg}")
 
         # check if user keyin helper keyword
-        called_helper = await help(event, key=msg)
+        called_helper = help(event, key=msg)
         if called_helper:
             # means do some action inside the help function, so do not continue the following code
             print('finished help function')
             return
 
         # check answer for current stroy
-        await check_if_can_go_next_story(event, msg)
+        check_if_can_go_next_story(event, msg)
 
     @handler.add(PostbackEvent)
-    async def handle_postback_event(event):
+    def handle_postback_event(event):
         print(f"PostbackEvent: {event}")
         user_id=event.source.user_id
-        profile= await line_bot_api.get_profile(user_id)
+        profile=line_bot_api.get_profile(user_id)
         user_name=profile.display_name
         msg = event.postback.data
         print(f"user_id: {user_id}, user_name: {user_name}, postback_input: {msg}")
         bypass = ['$Q3_Bypass', '$Q5_Bypass']
         if msg in bypass:
-            await asyncio.sleep(0)
             pass
         elif msg == '$Q6_reset':
             db.clear_retry_count(user_id)
-            called_helper = await help(event, key='-force-prev')
+            called_helper = help(event, key='-force-prev')
         else:
-            await check_if_can_go_next_story(event, msg)
+            check_if_can_go_next_story(event, msg)
 
 
     '''
     Common Functions
     '''
-    async def check_if_can_go_next_story(event, ans):
+    def check_if_can_go_next_story(event, ans):
         '''check answer for current stroy'''
         user_id=event.source.user_id
-        profile = await line_bot_api.get_profile(user_id)
+        profile=line_bot_api.get_profile(user_id)
         user_name=profile.display_name
         s_mang = Story_Manager(user_name, user_id)
         if not db.check_user_exist(user_id):
@@ -136,7 +130,6 @@ def create_app():
                 db.clear_retry_count(user_id)
             elif not ok:
                 db.increase_1_retry_count(user_id)
-
     return app
 
 if __name__ == '__main__':
