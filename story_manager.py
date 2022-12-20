@@ -47,8 +47,8 @@ class Story_Manager:
             # story.simple_msg_maker(20, msg='欸？對欸，好險有你幫忙，我去找一下營隊手冊\n我找到了！剛好營隊有很多內容也在馬太福音呢！', button_label='那我就幫你到這', text_after_clicked='接下來就靠你自己吧！'), 
             story.simple_msg_maker(25, msg='欸！等等啦！我發現我看不懂自己的筆記😅', button_label='不是吧！', text_after_clicked='你都不懂，我怎麼可能懂啊？'), 
             story.Question1(),
-            story.simple_msg_maker(30, msg='喔喔！我想起來了！這或許能當其中一個信息呢！', button_label='嗯嗯..', text_after_clicked='那還要嗎？'), 
-            story.simple_msg_maker(35, msg='當然啊！這才剛開始。我再翻一下，看看還有沒有其它寶藏', button_label='OK', text_after_clicked='好啊，我很期待'),
+            # story.simple_msg_maker(30, msg='喔喔！我想起來了！這或許能當其中一個信息呢！', button_label='嗯嗯..', text_after_clicked='那還要嗎？'), 
+            # story.simple_msg_maker(35, msg='當然啊！這才剛開始。我再翻一下，看看還有沒有其它寶藏', button_label='OK', text_after_clicked='好啊，我很期待'),
             story.simple_msg_maker(40, msg='那時候...有一個活動，有讓我們自己設計題目', button_label= '？？？', text_after_clicked='那跟小組有什麼關係？'),
             # story.simple_msg_maker(45, msg='你等我講完，答案是聖經裡的一個名詞\n我還留著當時的題目！翻到了！痾不過，沒有答案欸🤪', button_label='.....又來！', text_after_clicked='你的筆記要不是看不懂，就是缺漏...'),
             story.P12(),
@@ -61,16 +61,17 @@ class Story_Manager:
             story.Question4(),
             story.simple_msg_maker(60, msg='趁你剛剛解題的時候，我又想到了一題', button_label='真的假的？', text_after_clicked='到底是你出題太快還是我解題太慢？'), 
             story.Question5(),
-            story.simple_msg_maker(65, msg='對了欸！不錯嘛！題目沒問題吧？', button_label='嗯嗯！', text_after_clicked='只是好奇你上面的圖片哪來的？總不可能是你自己畫的吧'), 
-            story.simple_msg_maker(70, msg='那當然不是啊！是得到了民間高手的幫助', button_label='我就說！', text_after_clicked='難怪這麼精美'), 
+            # story.simple_msg_maker(65, msg='對了欸！不錯嘛！題目沒問題吧？', button_label='嗯嗯！', text_after_clicked='只是好奇你上面的圖片哪來的？總不可能是你自己畫的吧'), 
+            # story.simple_msg_maker(70, msg='那當然不是啊！是得到了民間高手的幫助', button_label='我就說！', text_after_clicked='難怪這麼精美'), 
             story.simple_msg_maker(75, msg='欸欸好消息！我同學傳給我一題他自己設計的題目！', button_label='咦？', text_after_clicked='你還有請別人幫忙喔？'), 
             story.simple_msg_maker(80, msg='對啊！不然真的好累😞\n但是我是先找你的喔！別吃醋！', button_label='我才不會…', text_after_clicked='我才不會…'), 
             story.Question6_a(),
             story.Question6_b(userid=self.user_id),
             story.Question6_b_1(userid=self.user_id),
-            story.simple_msg_maker(90, msg='同學補充說：和散那就是由Yasha(拯救、交付)以及Anna(懇求)這兩個希伯來語組成的，意思是"我求你來拯救"', button_label='天啊！', text_after_clicked='他出的也太複雜了吧！\n但很有深度耶！'),
+            story.simple_msg_maker(95, msg='我覺得可以來收尾了！', button_label='對阿！', text_after_clicked='已經有不少素材了！'), 
+            # story.simple_msg_maker(90, msg='同學補充說：和散那就是由Yasha(拯救、交付)以及Anna(懇求)這兩個希伯來語組成的，意思是"我求你來拯救"', button_label='天啊！', text_after_clicked='他出的也太複雜了吧！\n但很有深度耶！'),
             # story.simple_msg_maker(95, msg='😥對啊！我都解崩潰了，還是沒頭緒\n我覺得可以來收尾了！', button_label='對阿！', text_after_clicked='已經有不少素材了！'),
-            story.P31(),
+            # story.P31(),
             story.Question7(),
             story.Ending()
         ]
@@ -144,7 +145,7 @@ class Story_Manager:
                 messages=TextSendMessage(text='回應訊息數超過五則喔！要重新修改後才能正確回傳！')
                 )
             return False
-        if correct or force_correct:
+        if correct:
             next_story = self.next_story(story_id)
             if next_story:
                 next_story_messages = messages + next_story.get_pre_message() + next_story.get_main_message()

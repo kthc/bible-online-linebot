@@ -76,7 +76,9 @@ class Story:
     def show_ans_if_force_correct(self, messages=[], pre_text='正確答案是：'):
         '''if messages not given, it will send the correct ans and post_messages of this instance'''
         if len(messages) == 0:
-            return True, [TextSendMessage(text=f'''{pre_text}{self.ans}''', sender=None)] + [TextSendMessage(text=msg, sender=None) for msg in self.post_messages]
+            # return True, [TextSendMessage(text=f'''{pre_text}{self.ans}''', sender=None)] + [TextSendMessage(text=msg, sender=None) for msg in self.post_messages]
+            # return True, [TextSendMessage(text=msg, sender=None) for msg in self.post_messages]
+            return True, []
         else:
             return True, messages
 
@@ -98,7 +100,7 @@ class Story:
             if len(self.hint_list) > 4:
                 hint1 = self.hint_list[0:3]
                 hint2 = self.hint_list[3:]
-                return False , [
+                return False, [
                     TemplateSendMessage(
                         alt_text='遊戲提示',
                         template=CarouselTemplate(
@@ -406,7 +408,20 @@ class Question1(Story):
         self.story_name = '枝子題'
         self.pre_messages = [
             f'''所以才需要一起想啊！拜託啦~''']
-        self.post_messages = []
+        self.post_messages = [
+            TextSendMessage(
+                text='喔喔！我想起來了！這或許能當其中一個信息呢！',
+                quick_reply=QuickReply(
+                    items=[
+                        QuickReplyButton(
+                            action=PostbackAction(
+                                label='嗯嗯', display_text='那還要嗎?', data='$Q1_post_reply1')
+                        )
+                    ]
+                ),
+                sender=None
+            )
+        ]
         self.main_messages = [
             f'''上面有一大堆歪七扭八的線，不過旁邊有手冊的內容，它說...\n- 約瑟是耶穌的父親\n- 馬但是耶穌的祖父或曾祖父\n- 亞金不是以律的兒子\n- 雅各比以利亞撒晚出生\n- 亞金是馬但的長輩\n- 耶穌最為年幼\n- 以利亞撒是亞金的孫子\n- 雅各不是耶穌的曾祖父''',
             f'''好像是跟祖譜有關？看來要排出七代的順序...''',
@@ -431,8 +446,11 @@ class Question1(Story):
             # force correct answer
             return self.show_ans_if_force_correct()
 
-        if ans.lower() == 'help':
+        if ans.lower().strip() == 'help':
             return self.show_hint()
+
+        if ans == '$Q1_post_reply1':
+            return True, [TextSendMessage(text='當然啊！這才剛開始。我再翻一下，看看還有沒有其它寶藏')]
 
         if type(ans) is str:
             ans_list = fixed_ans.split("，")
@@ -463,7 +481,7 @@ class Question1(Story):
                     return False, [TextSendMessage(text=self.reply_messages_wrong[2])]
 
             # correct answer
-            return True, [TextSendMessage(text=msg) for msg in self.post_messages]
+            return False, [TextSendMessage(text=msg) for msg in self.post_messages]
         return False, [TextSendMessage(text=self.reply_messages_wrong[3])]
 
 
@@ -527,7 +545,7 @@ class Question2(Story):
             dict(label='蔣渭水的腳步會走上怎麼樣的路？',
                  text='台灣哪條公路是以蔣渭水命名的呢？', key='$Q2_hint_1'),
             dict(label='你家到底在哪裡？', text='台灣四大超商中的一間，引用自其著名的廣告標語', key='$Q2_hint_2'),
-            dict(label='任意門暗指甚麼？', text='都到宜蘭了，怎麼還出現了有別的縣市名的店家呢？', key='$Q2_hint_3'),
+            dict(label='任意門暗指甚麼？', text='都到宜蘭了，怎麼還出現含有別的縣市名的店家呢？', key='$Q2_hint_3'),
             dict(label='路上怎麼會有床？', text='床代指休憩處，附近有甚麼可以休憩的地方呢？', key='$Q2_hint_4'),
         ]
 
@@ -546,7 +564,7 @@ class Question2(Story):
             # force correct answer
             return self.show_ans_if_force_correct()
 
-        if ans.lower() == 'help':
+        if ans.lower().strip() == 'help':
             return self.show_hint()
 
         if ans == self.ans:
@@ -554,8 +572,8 @@ class Question2(Story):
         elif ans == "伯利恆之星":
             # some matched, some not
             return False, [TextSendMessage(text=self.reply_messages_wrong[1])]
-        elif (ans != self.ans or ans != "伯利恆之星") and (retry_count % 3) == 0:
-            return False, [TextSendMessage(text=self.reply_messages_wrong[2])]
+        # elif (ans != self.ans or ans != "伯利恆之星") and (retry_count % 3) == 0:
+        #     return False, [TextSendMessage(text=self.reply_messages_wrong[2])]
         else:
             # not matched any of ans
             return False, [TextSendMessage(text=self.reply_messages_wrong[0])]
@@ -601,7 +619,7 @@ class Question3(Story):
             # force correct answer
             return self.show_ans_if_force_correct()
 
-        if ans.lower() == 'help':
+        if ans.lower().strip() == 'help':
             return self.show_hint()
 
         # replace Chinese character for the same meaning
@@ -620,68 +638,70 @@ class Question3(Story):
         # some match the keyword
         elif ("聽啊" in ans or "天使" in ans or "高聲唱" in ans):
             return False, [TextSendMessage(text=self.reply_messages_wrong[2])]
-        elif ans == '$Q3_yes':
-            db.clear_retry_count(self.userid)
-            db.upsert_selection_value(
-                userid=self.userid, storyid=self.id, value=ans)
-            return False, [TextSendMessage(text='如果你已經解開數獨與上方框框的關係，可以試著將解出的歌譜唱給你的基督徒朋友聽？')]
-        elif ans == '$Q3_no':
-            db.clear_retry_count(self.userid)
-            return False, [TextSendMessage(text='加油加油！')]
-        elif ans == '$Q3_yes_2':
-            db.clear_retry_count(self.userid)
-            db.upsert_selection_value(
-                userid=self.userid, storyid=self.id, value=ans)
-            return False, [TextSendMessage(text='這是一首耳熟能詳，且與天使有關的聖誕詩歌唷')]
-        elif ans == '$Q3_no_2':
-            db.clear_retry_count(self.userid)
-            return False, [TextSendMessage(text='加油加油！')]
         else:
-            selection_value = db.get_selection_value_by_userid_and_storyid(
-                userid=self.userid, storyid=self.id)
-            if selection_value is None and retry_count < 6:
-                # not provided hint yet
-                return False, [TextSendMessage(text=self.reply_messages_wrong[1])]
-            elif selection_value is None and (retry_count % 6) != 0:
-                # not provided hint yet
-                return False, [TextSendMessage(text=self.reply_messages_wrong[1])]
-            elif selection_value is None and (retry_count % 6) == 0:
-                # not provided hint yet and first retry up to 5
-                return False, [
-                    TextSendMessage(text='需要提示嗎？',
-                                    quick_reply=QuickReply(
-                                        items=[
-                                            QuickReplyButton(
-                                                action=PostbackAction(
-                                                    label='是', data='$Q3_yes', display_text='是')
-                                            ),
-                                            QuickReplyButton(
-                                                action=PostbackAction(
-                                                    label='否', data='$Q3_no', display_text='否')
-                                            )
-                                        ]
-                                    )
-                                    )
-                ]
-            elif (selection_value == '$Q3_yes' or selection_value == '$Q3_yes_2') and (retry_count % 4) == 0:
-                return False, [
-                    TextSendMessage(text='需要再來點提示嗎？',
-                                    quick_reply=QuickReply(
-                                        items=[
-                                            QuickReplyButton(
-                                                action=PostbackAction(
-                                                    label='是', data='$Q3_yes_2', display_text='是')
-                                            ),
-                                            QuickReplyButton(
-                                                action=PostbackAction(
-                                                    label='否', data='$Q3_no_2', display_text='否')
-                                            )
-                                        ]
-                                    )
-                                    )
-                ]
-            elif (selection_value == '$Q3_yes' or selection_value == '$Q3_yes_2'):
-                return False, [TextSendMessage(text=self.reply_messages_wrong[1])]
+            return False, [TextSendMessage(text=self.reply_messages_wrong[1])]
+        # elif ans == '$Q3_yes':
+        #     db.clear_retry_count(self.userid)
+        #     db.upsert_selection_value(
+        #         userid=self.userid, storyid=self.id, value=ans)
+        #     return False, [TextSendMessage(text='如果你已經解開數獨與上方框框的關係，可以試著將解出的歌譜唱給你的基督徒朋友聽？')]
+        # elif ans == '$Q3_no':
+        #     db.clear_retry_count(self.userid)
+        #     return False, [TextSendMessage(text='加油加油！')]
+        # elif ans == '$Q3_yes_2':
+        #     db.clear_retry_count(self.userid)
+        #     db.upsert_selection_value(
+        #         userid=self.userid, storyid=self.id, value=ans)
+        #     return False, [TextSendMessage(text='這是一首耳熟能詳，且與天使有關的聖誕詩歌唷')]
+        # elif ans == '$Q3_no_2':
+        #     db.clear_retry_count(self.userid)
+        #     return False, [TextSendMessage(text='加油加油！')]
+        # else:
+        #     selection_value = db.get_selection_value_by_userid_and_storyid(
+        #         userid=self.userid, storyid=self.id)
+        #     if selection_value is None and retry_count < 6:
+        #         # not provided hint yet
+        #         return False, [TextSendMessage(text=self.reply_messages_wrong[1])]
+        #     elif selection_value is None and (retry_count % 6) != 0:
+        #         # not provided hint yet
+        #         return False, [TextSendMessage(text=self.reply_messages_wrong[1])]
+        #     elif selection_value is None and (retry_count % 6) == 0:
+        #         # not provided hint yet and first retry up to 5
+        #         return False, [
+        #             TextSendMessage(text='需要提示嗎？',
+        #                             quick_reply=QuickReply(
+        #                                 items=[
+        #                                     QuickReplyButton(
+        #                                         action=PostbackAction(
+        #                                             label='是', data='$Q3_yes', display_text='是')
+        #                                     ),
+        #                                     QuickReplyButton(
+        #                                         action=PostbackAction(
+        #                                             label='否', data='$Q3_no', display_text='否')
+        #                                     )
+        #                                 ]
+        #                             )
+        #                             )
+        #         ]
+        #     elif (selection_value == '$Q3_yes' or selection_value == '$Q3_yes_2') and (retry_count % 4) == 0:
+        #         return False, [
+        #             TextSendMessage(text='需要再來點提示嗎？',
+        #                             quick_reply=QuickReply(
+        #                                 items=[
+        #                                     QuickReplyButton(
+        #                                         action=PostbackAction(
+        #                                             label='是', data='$Q3_yes_2', display_text='是')
+        #                                     ),
+        #                                     QuickReplyButton(
+        #                                         action=PostbackAction(
+        #                                             label='否', data='$Q3_no_2', display_text='否')
+        #                                     )
+        #                                 ]
+        #                             )
+        #                             )
+        #         ]
+        #     elif (selection_value == '$Q3_yes' or selection_value == '$Q3_yes_2'):
+        #         return False, [TextSendMessage(text=self.reply_messages_wrong[1])]
 
 
 class P17(Story):
@@ -757,7 +777,7 @@ class Question4(Story):
             # force correct answer
             return self.show_ans_if_force_correct()
 
-        if ans.lower() == 'help':
+        if ans.lower().strip() == 'help':
             return self.show_hint()
 
         if type(ans) is str:
@@ -788,7 +808,20 @@ class Question5(Story):
             f'''沒啦，剛好才思泉湧，就做出來了😎''',
             f'''你再幫我檢查看看有沒有bug'''
         ]
-        self.post_messages = []
+        self.post_messages = [
+            TextSendMessage(
+                text='對了欸！不錯嘛！題目沒問題吧？',
+                quick_reply=QuickReply(
+                    items=[
+                        QuickReplyButton(
+                            action=PostbackAction(
+                                label='嗯嗯', display_text='只是好奇你上面的圖片哪來的？總不可能是你自己畫的吧', data='$Q5_post_reply1')
+                        )
+                    ]
+                ),
+                sender=None
+            )
+        ]
         self.main_messages = ''
         self.ans = '以力殺'
         self.reply_messages_wrong = [
@@ -797,7 +830,7 @@ class Question5(Story):
         ]
         self.hint_list = [
             dict(label='提示藏在哪？', text='提示就藏在圖片下方方框中的頭跟尾，簡稱藏頭詩、藏尾詩', key='$Q5_hint_1'),
-            dict(label='提示躲在哪？', text='第三個圖的填字都填好了囉，順便在第二直行裡藏了提示。', key='$Q5_hint_2')
+            dict(label='提示躲在哪？', text='第三個圖的填字都填好了，提示就躲在第二直行裡。', key='$Q5_hint_2')
         ]
 
     def get_main_message(self):
@@ -814,11 +847,30 @@ class Question5(Story):
             # force correct answer
             return self.show_ans_if_force_correct()
 
-        if ans.lower() == 'help':
+        if ans.lower().strip() == 'help':
             return self.show_hint()
 
+        if ans == '$Q5_post_reply1':
+            return False, [
+                TextSendMessage(
+                    text='那當然不是啊！是得到了民間高手的幫助',
+                    quick_reply=QuickReply(
+                        items=[
+                            QuickReplyButton(
+                                action=PostbackAction(
+                                    label='我就說！', display_text='難怪這麼精美', data='$Q5_post_reply2')
+                            )
+                        ]
+                    ),
+                    sender=None
+                )
+            ]
+
+        if ans == '$Q5_post_reply2':
+            return True, []
+
         if self.ans == ans:
-            return True, [TextSendMessage(text=msg) for msg in self.post_messages]
+            return False, [TextSendMessage(text=msg) for msg in self.post_messages]
 
         elif ans == '以利沙':
             return False, [TextSendMessage(text=self.reply_messages_wrong[0])]
@@ -846,12 +898,13 @@ class Question6_a(Story):
             dict(label='第1小題', text='平方 ： 1^2 = 1', key='$Q6a_hint_1'),
             dict(label='第2小題', text='相加 ： 4+3 = 1+6', key='$Q6a_hint_2'),
             dict(label='第3小題', text='先乘後加 ： 8*2+1 = 17', key='$Q6a_hint_3'),
-            dict(label='第4小題', text='相乘 ： 2*3 = 6，（記得先將注音與英文字母一樣邏輯轉換為數字）',
+            dict(label='第4小題', text='相乘 ： 2*3 = 6，（記得先將注音與英文字母以相同邏輯轉換為數字）',
                  key='$Q6a_hint_4'),
-            dict(label='第5小題', text='最大公因數 ： 9=gcd(63,117)', key='$Q6a_hint_5'),
-            dict(label='保留用', text='這是保留用，不是提示', key='$Q6a_hint_6'),
+            dict(label='第5小題', text='最大公因數 ： 9 = gcd(63,117)', key='$Q6a_hint_5'),
+            dict(label='英文字母如何成等式？',
+                 text='將英文字母轉換為該字母的順序即可，ex. a=1, b=2...', key='$Q6a_hint_6')
         ]
-        self.hint_subtitle = "注意：提示會直接說出運算方式，謹慎點選，避免暴雷。"
+        self.hint_subtitle = "注意：提示會直接給出運算方式，謹慎點選，避免暴雷。"
 
     def get_main_message(self):
         return [
@@ -867,7 +920,7 @@ class Question6_a(Story):
             # force correct answer
             return self.show_ans_if_force_correct()
 
-        if ans.lower() == 'help':
+        if ans.lower().strip() == 'help':
             return self.show_hint()
 
         if self.ans == ans.strip().lower():
@@ -876,61 +929,21 @@ class Question6_a(Story):
             return False, [TextSendMessage(text=msg) for msg in self.reply_messages_wrong]
 
 
-class P31(Story):
-    def __init__(self, *args, **kwargs) -> None:
-        super().__init__(args, kwargs)
-        self.username = kwargs.get('username', '玩家')
-        self.id = 95
-        self.story_name = ''
-        self.pre_messages = []
-        self.post_messages = []
-        self.main_messages = []
-        self.ans = ''
-        self.reply_messages_correct = []
-        self.reply_messages_wrong = []
-
-    def get_main_message(self):
-        return [
-            TextSendMessage(
-                text=f'😥對啊！我都解崩潰了，還是沒頭緒'
-            ),
-            TextSendMessage(
-                text='我覺得可以來收尾了！',
-                quick_reply=QuickReply(
-                    items=[
-                        QuickReplyButton(
-                            action=MessageAction(
-                                label='對阿！', text='已經有不少素材了！')
-                        )
-                    ]
-                )
-            )
-        ]
-
-    def check_ans(self, ans, force_correct=False, retry_count=0):
-        '''return (True, Messages:list), Message is empty list if ans is correct, otherwise need to throw error message to reply to linbot'''
-        return True, []
-
-
 class Question6_b(Story):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(args, kwargs)
         self.id = 620
         self.userid = kwargs.get('userid', '')
         self.story_name = '拯救者(b)'
-        selection_value = db.get_selection_value_by_userid_and_storyid(
-            userid=self.userid, storyid=620)
-        if selection_value is None:
-            self.pre_messages = [
-                f'''強者同學竟然還做了兩個版本，可以選挑戰版還是正常版喔''']
-        else:
-            self.pre_messages = []
+        self.pre_messages = [f'''強者同學竟然還做了兩個版本，可以選挑戰版還是正常版喔''']
         self.post_messages = []
         self.main_messages = []
         self.ans = ''
         self.reply_messages_wrong = [f'''選一下你要挑戰哪個版本吧！''']
 
     def get_main_message(self):
+        db.upsert_selection_value(
+            userid=self.userid, storyid=self.id, value='0')
         return [
             TemplateSendMessage(
                 alt_text='Q6b',
@@ -1027,13 +1040,30 @@ class Question6_b_1(Story):
             # force correct answer
             return self.show_ans_if_force_correct()
 
-        if ans.lower() == 'help':
+        if ans.lower().strip() == 'help':
             return self.show_hint()
+        
+        if ans == '$Q6b1_post_reply1':
+            return True, [TextSendMessage(text='😥對啊！我都解崩潰了，還是沒頭緒', sender=None)]
 
         selection_value = db.get_selection_value_by_userid_and_storyid(
             userid=self.userid, storyid=620)  # storyid is from the previous story, which id = 620
         if ans == 'anna' or ans == 'Anna':
-            return True, [TextSendMessage(text=msg, sender=None) for msg in self.post_messages]
+            return False, [
+                TextSendMessage(text='我問問看！嗯嗯他說答對了！', sender=None),
+                TextSendMessage(
+                    text='同學補充說：和散那就是由Yasha(拯救、交付)以及Anna(懇求)這兩個希伯來語組成的，意思是"我求你來拯救',
+                    quick_reply=QuickReply(
+                        items=[
+                            QuickReplyButton(
+                                action=PostbackAction(
+                                    label='天啊！', display_text='他出的也太複雜了吧！\n但很有深度耶！', data='$Q6b1_post_reply1')
+                            )
+                        ]
+                    ),
+                    sender=None
+                )
+            ]
         if retry_count > 1 and (retry_count % 5) == 0 and selection_value == '$Q6b_hard':
             return False, [
                 TextSendMessage(text='怎麼感覺哪裡怪怪的，再想一下好了！\n如果後悔了想更改挑戰模式的話，可以重選喔！',
@@ -1071,7 +1101,7 @@ class Question7(Story):
             dict(label='遊戲中三個圈起來的字…要幹嘛？',
                  text='將這三個被圈起來的英文字母套用到地圖下方的等式中', key='$Q7_hint_2'),
             dict(label='解開了兩個圖中的等式…然後呢？',
-                 text='試著在地圖中找到解出的英文字母與數字，取交集就能縮小範圍拉！', key='$Q7_hint_3')
+                 text='試著在地圖中找到解出的英文字母與數字，取交集就能縮小範圍啦！', key='$Q7_hint_3')
         ]
 
     def get_main_message(self):
@@ -1090,9 +1120,9 @@ class Question7(Story):
         #     return self.show_ans_over_try()
         if force_correct:
             # force correct answer
-            return True, [TextSendMessage(text=f'''正確答案是：{self.ans}\n真是太感謝你了！''', sender=None)]
+            return self.show_ans_if_force_correct()
 
-        if ans.lower() == 'help':
+        if ans.lower().strip() == 'help':
             return self.show_hint()
 
         if ans == self.ans:
@@ -1134,12 +1164,18 @@ class Ending(Story):
                             {
                                 "type": "text",
                                 "text": "週六小組裡到底分享了甚麼信息呢？點選以下小組信息閱讀完整版。\n中間在哪一題卡住了嗎？點選解題思路，看看各題的解題辦法！",
-                                "wrap": True
+                                "style": "normal",
+                                "weight": "regular",
+                                "align": "start",
+                                "wrap": True,
+                                "adjustMode": "shrink-to-fit",
+                                "margin": "none",
+                                "size": "md"
                             }
                         ],
-                        "height": "150px",
-                        "alignItems": "center",
-                        "justifyContent": "flex-end"
+                        "height": "170px",
+                        "justifyContent": "center",
+                        "alignItems": "center"
                     },
                     "body": {
                         "type": "box",
@@ -1162,20 +1198,12 @@ class Ending(Story):
                                 }
                             }
                         ],
-                        "position": "relative"
+                        "justifyContent": "flex-end",
+                        "alignItems": "center"
                     },
                     "styles": {
-                        "header": {
-                            "separatorColor": "#dbdbdb",
-                            "separator": True
-                        },
-                        "hero": {
-                            "separator": True,
-                            "separatorColor": "#b0b0b0"
-                        },
                         "body": {
-                            "separator": True,
-                            "separatorColor": "#b0b0b0"
+                            "separator": True
                         }
                     }
                 },
@@ -1188,12 +1216,18 @@ class Ending(Story):
                             {
                                 "type": "text",
                                 "text": "歡迎點選以下連結更了解我們團隊，若您願意奉獻，也可參考奉獻資訊。",
-                                "wrap": True
+                                "style": "normal",
+                                "weight": "regular",
+                                "align": "start",
+                                "wrap": True,
+                                "adjustMode": "shrink-to-fit",
+                                "margin": "none",
+                                "size": "md"
                             }
                         ],
-                        "height": "150px",
-                        "alignItems": "center",
-                        "justifyContent": "flex-end"
+                        "height": "170px",
+                        "justifyContent": "center",
+                        "alignItems": "center"
                     },
                     "body": {
                         "type": "box",
@@ -1216,20 +1250,12 @@ class Ending(Story):
                                 }
                             }
                         ],
-                        "position": "relative"
+                        "justifyContent": "flex-end",
+                        "alignItems": "center"
                     },
                     "styles": {
-                        "header": {
-                            "separatorColor": "#dbdbdb",
-                            "separator": True
-                        },
-                        "hero": {
-                            "separator": True,
-                            "separatorColor": "#b0b0b0"
-                        },
                         "body": {
-                            "separator": True,
-                            "separatorColor": "#b0b0b0"
+                            "separator": True
                         }
                     }
                 }

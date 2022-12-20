@@ -76,7 +76,7 @@ def create_app():
         user_id=event.source.user_id
         profile=line_bot_api.get_profile(user_id)
         user_name=profile.display_name
-        msg = event.message.text
+        msg = event.message.text.strip()
         print(f"user_id: {user_id}, user_name: {user_name}, input: {msg}")
 
         # check if user keyin helper keyword
@@ -95,7 +95,7 @@ def create_app():
         user_id=event.source.user_id
         profile=line_bot_api.get_profile(user_id)
         user_name=profile.display_name
-        msg = event.postback.data
+        msg = event.postback.data.strip()
         print(f"user_id: {user_id}, user_name: {user_name}, postback_input: {msg}")
         bypass = ['$Q3_Bypass', '$Q5_Bypass']
         if msg in bypass:
