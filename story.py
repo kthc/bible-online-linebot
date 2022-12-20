@@ -113,7 +113,7 @@ class Story:
     def select_hint(self, hint_key):
         for hint in self.hint_list:
             if hint['key'] == hint_key:
-                return [TextSendMessage(text=hint['key'], sender=None)]
+                return [TextSendMessage(text=hint['text'], sender=None)]
 
 
 class SimplePostbackStory(Story):
