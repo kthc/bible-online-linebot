@@ -81,12 +81,32 @@ class Story:
     def show_ans_over_try(self):
         '''if messages not given, it will send the correct ans and post_messages of this instance'''
         return True, [TextSendMessage(text=f'''（系統偵測已作答多次，為使遊戲順利進行，將直接報出答案。請將答案複製貼上於對話框並回傳。此題答案為：{self.ans}）''', sender=None)]
-    
-    def hint(self, message:str=None):
-        if message is None or message == '':
+
+    def hint(self, messages: list = [], subtitle='\t'):
+        """if message not given, send default hint, otherwise, send hint with button template
+
+        :param messages: _description_, defaults to []
+        :type messages: list, optional, give list of {'label': 'some  button text', 'text': 'some words for hint detail'}
+        :return: (False, list of SendMessages)
+        :rtype: tuple
+        """
+        if len(messages) == 0:
             return False, [TextSendMessage(text=f'''提示：\nOoops 抱歉，本題沒有提示😵。\n如果真的卡關可以使用｢skip｣跳題🤯''')]
         else:
-            return False, [TextSendMessage(text=message)]
+            return False, [
+                TemplateSendMessage(
+                    alt_text='遊戲提示',
+                    template=ButtonsTemplate(
+                        title='提示',
+                        text=subtitle,
+                        actions=[MessageTemplateAction(
+                            label=msg['label'],
+                            text= f"""【{msg['label']}】\n{msg['text']}"""
+                        ) for msg in messages]
+                    )
+                )
+            ]
+
 
 class SimplePostbackStory(Story):
     def __init__(self, id, *args, msg='', button_label='', text_after_clicked='', sender_name='', **kwargs) -> None:
@@ -482,7 +502,13 @@ class Question2(Story):
             return self.show_ans_if_force_correct()
 
         if ans.lower() == 'help':
-            return self.hint('''提示：\n蔣渭水的腳步會走上怎麼樣的路？\n你家到底在哪裡？\n任意門暗指甚麼？\n路上怎麼會有床？''')
+            return self.hint([
+                dict(label='蔣渭水的腳步會走上怎麼樣的路？', text='台灣哪條公路是以蔣渭水命名的呢？'),
+                dict(label='你家到底在哪裡？', text='台灣四大超商中的一間，引用自其著名的廣告標語'),
+                dict(label='任意門暗指甚麼？', text='都到宜蘭了，怎麼還出現了有別的縣市名的店家呢？'),
+                dict(label='路上怎麼會有床？', text='床代指休憩處，附近有甚麼可以休憩的地方呢？'),
+            ]
+            )
 
         if ans == self.ans:
             return True, [TextSendMessage(text=msg) for msg in self.post_messages]
@@ -527,7 +553,16 @@ class Question3(Story):
             return self.show_ans_if_force_correct()
 
         if ans.lower() == 'help':
-            return self.hint('''提示：\n我破解數獨了，要如何填入上方框框中？\n我解開數獨上的框框了，但…？''')
+            return self.hint([
+                dict(label='我破解數獨了，要如何填入上方框框中？',
+                     text='彩虹在聖經中是特殊的記號，在之後的謎題裡也會被使用到'),
+                dict(label='我解開數獨上的框框了，但…？',
+                     text='不知道這是哪首歌嗎? 或許可以唱給身邊的基督徒朋友聽聽，他可能會知道？'),
+                dict(label='我的基督徒朋友也不知道…', text='這是一首耳熟能詳，且與天使有關的聖誕詩歌'),
+                dict(label='為什麼google不出答案…',
+                     text='歌名中的第一個字是個感官動詞。（記得找到國語版才能解出正確答案）'),
+            ]
+            )
 
         # replace Chinese character for the same meaning
         if ("于" in ans or "予" in ans or "與" in ans):
@@ -609,7 +644,6 @@ class Question3(Story):
                 return False, [TextSendMessage(text=self.reply_messages_wrong[1])]
 
 
-
 class P17(Story):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(args, kwargs)
@@ -678,9 +712,12 @@ class Question4(Story):
         if force_correct:
             # force correct answer
             return self.show_ans_if_force_correct()
-        
+
         if ans.lower() == 'help':
-            return self.hint('''提示：\n這個圖…該從何開始…？''')
+            return self.hint([
+                dict(label='這個圖…該從何開始…？', text='古人云：｢物以類聚、人以群分｣，所以…字以色分')
+            ]
+            )
 
         if type(ans) is str:
             if ans == self.ans:
@@ -733,7 +770,11 @@ class Question5(Story):
             return self.show_ans_if_force_correct()
 
         if ans.lower() == 'help':
-            return self.hint('''提示：\n提示藏在哪？\n提示躲在哪？''')
+            return self.hint([
+                dict(label='提示藏在哪？', text='提示就藏在圖片下方方框中的頭跟尾，簡稱藏頭詩、藏尾詩'),
+                dict(label='提示躲在哪？', text='第三個圖的填字都填好了囉，順便在第二直行裡藏了提示。')
+            ]
+            )
 
         if self.ans == ans:
             return True, [TextSendMessage(text=msg) for msg in self.post_messages]
@@ -776,7 +817,14 @@ class Question6_a(Story):
             return self.show_ans_if_force_correct()
 
         if ans.lower() == 'help':
-            return self.hint('''提示：\n注意：提示會直接說出運算方式，謹慎點選，避免暴雷。\n第1小題\n第2小題\n第3小題\n第4小題\n第5小題''')
+            return self.hint([
+                dict(label='第1小題', text='平方 ： 1^2 = 1'),
+                dict(label='第2小題', text='相加 ： 4+3 = 1+6'),
+                dict(label='第3小題', text='先乘後加 ： 8*2+1 = 17'),
+                dict(label='第4小題', text='相乘 ： 2*3 = 6，（記得先將注音與英文字母一樣邏輯轉換為數字）'),
+                dict(label='第5小題', text='最大公因數 ： 9=gcd(63,117)'),
+            ], subtitle="注意：提示會直接說出運算方式，謹慎點選，避免暴雷。"
+            )
 
         if self.ans == ans.strip().lower():
             return True, [TextSendMessage(text=msg) for msg in self.post_messages]
@@ -934,7 +982,7 @@ class Question6_b_1(Story):
         if force_correct:
             # force correct answer
             return self.show_ans_if_force_correct()
-        
+
         if ans.lower() == 'help':
             return self.hint()
 
@@ -946,14 +994,14 @@ class Question6_b_1(Story):
             return False, [
                 TextSendMessage(text='怎麼感覺哪裡怪怪的，再想一下好了！\n如果後悔了想更改挑戰模式的話，可以重選喔！',
                                 quick_reply=QuickReply(
-                    items=[
-                        QuickReplyButton(
-                            action=PostbackAction(
-                                label='重新選擇吧', data='$Q6_reset', display_text='重新選擇')
-                        )
-                    ]
-                )
-                )
+                                    items=[
+                                        QuickReplyButton(
+                                            action=PostbackAction(
+                                                label='重新選擇吧', data='$Q6_reset', display_text='重新選擇')
+                                        )
+                                    ]
+                                )
+                                )
             ]
         if ans != 'anna' and ans != 'Anna':
             return False, [TextSendMessage(text=self.reply_messages_wrong[0])]
@@ -991,9 +1039,14 @@ class Question7(Story):
         if force_correct:
             # force correct answer
             return True, [TextSendMessage(text=f'''正確答案是：{self.ans}\n真是太感謝你了！''', sender=None)]
-        
+
         if ans.lower() == 'help':
-            return self.hint('提示：\n我卡在填字遊戲的英數等式\n填字遊戲中三個被圈起來的字…要幹嘛？\n解開了兩個圖中的等式…然後呢？')
+            return self.hint([
+                dict(label='我卡在填字遊戲的英數等式', text='每個英文字母所代表的數字為該字母在填字遊戲出現過的次數'),
+                dict(label='填字遊戲中三個被圈起來的字…要幹嘛？', text='將這三個被圈起來的英文字母套用到地圖下方的等式中'),
+                dict(label='解開了兩個圖中的等式…然後呢？', text='試著在地圖中找到解出的英文字母與數字，取交集就能縮小範圍拉！')
+            ]
+            )
 
         if ans == self.ans:
             return True, [TextSendMessage(text=msg, sender=None) for msg in self.post_messages]
