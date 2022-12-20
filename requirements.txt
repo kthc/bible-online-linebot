@@ -27,4 +27,4 @@ soundfile==0.11.0
 psycopg2
 python-dotenv
 waitress
-pyngrok 
+pyngrok
