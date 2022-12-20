@@ -98,13 +98,13 @@ class Story:
             if len(self.hint_list) > 4:
                 hint1 = self.hint_list[0:3]
                 hint2 = self.hint_list[3:]
-                return [
+                return False , [
                     TemplateSendMessage(
                         alt_text='遊戲提示',
                         template=CarouselTemplate(
                             columns=[
                                 CarouselColumn(
-                                    text='',
+                                    text=self.hint_subtitle,
                                     title='提示',
                                     actions=[PostbackTemplateAction(
                                         label=msg['label'],
@@ -113,7 +113,7 @@ class Story:
                                     ) for msg in hint1]
                                 ),
                                 CarouselColumn(
-                                    text='',
+                                    text=self.hint_subtitle,
                                     title='提示',
                                     actions=[PostbackTemplateAction(
                                         label=msg['label'],
@@ -849,6 +849,7 @@ class Question6_a(Story):
             dict(label='第4小題', text='相乘 ： 2*3 = 6，（記得先將注音與英文字母一樣邏輯轉換為數字）',
                  key='$Q6a_hint_4'),
             dict(label='第5小題', text='最大公因數 ： 9=gcd(63,117)', key='$Q6a_hint_5'),
+            dict(label='保留用', text='這是保留用，不是提示', key='$Q6a_hint_6'),
         ]
         self.hint_subtitle = "注意：提示會直接說出運算方式，謹慎點選，避免暴雷。"
 
