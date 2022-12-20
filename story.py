@@ -1146,7 +1146,7 @@ class Ending(Story):
 
     def check_ans(self, ans, force_correct=False, retry_count=0):
         '''return (True, Messages:list), Message is empty list if ans is correct, otherwise need to throw error message to reply to linbot'''
-        return False, [TextSendMessage(text=msg) for msg in self.reply_messages_wrong]
+        return False, []
 
 
 def simple_msg_maker(id, msg='', button_label='', text_after_clicked='', sender_name=''):
