@@ -1266,7 +1266,7 @@ class Ending(Story):
             TextSendMessage(text='''這些素材真是太可以了！'''),
             StickerSendMessage(package_id=11537, sticker_id=52002745),
             TextSendMessage(text='''作為福利，我讓你搶先看週六小組的信息內容'''),
-            FlexSendMessage(alt_text='flex_contents', contents=contents),
+            FlexSendMessage(alt_text='已經結束囉！', contents=contents),
         ]
         return main_msg
 
