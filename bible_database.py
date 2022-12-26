@@ -47,7 +47,19 @@ class BibleDB:
             cur.close()
             print(f'Dropped {table} Table!')
     
+    def check_connection(self):
+        try:
+            connected = self.con.closed == 0
+            if connected:
+                return True
+            else:
+                self.connect()
+        except psycopg2.Error as e:
+            self.connect()
+            print(f'Reconnected Database')
+    
     def execute(self, sql):
+        self.check_connection()
         cur = self.con.cursor()
         cur.execute(sql)
         data = cur.fetchall()
@@ -60,6 +72,7 @@ class BibleDB:
         :param str user_id: User ID
         :return int: current story id, return 0 if not found this user id
         """
+        self.check_connection()
         cur = self.con.cursor()
         users = cur.execute(
         f"""SELECT CurStoryID, Finished FROM {self.user_table} WHERE UserID='{userid}'; """)
@@ -72,6 +85,7 @@ class BibleDB:
             return 0
 
     def get_finished_by_userid(self, userid):
+        self.check_connection()
         cur = self.con.cursor()
         cur.execute(
         f"""SELECT Finished FROM {self.user_table} WHERE UserID='{userid}'; """)
@@ -84,6 +98,7 @@ class BibleDB:
             return False
 
     def add_new_user(self, userid):
+        self.check_connection()
         cur = self.con.cursor()
         cur.execute(
         f"""SELECT * FROM {self.user_table} WHERE UserID='{userid}'; """)
@@ -101,6 +116,7 @@ class BibleDB:
             return login_count
 
     def delete_user(self, userid):
+        self.check_connection()
         cur = self.con.cursor()
         cur.execute(
         f"""DELETE FROM {self.user_table} WHERE UserID='{userid}'; """)
@@ -108,6 +124,7 @@ class BibleDB:
         cur.close()
 
     def check_user_exist(self, userid):
+        self.check_connection()
         cur = self.con.cursor()
         cur.execute(
         f"""SELECT * FROM {self.user_table} WHERE UserID='{userid}'; """)
@@ -116,6 +133,7 @@ class BibleDB:
         return len(users) > 0
 
     def update_login_count(self, userid):
+        self.check_connection()
         cur = self.con.cursor()
         cur.execute(
         f"""SELECT LoginCount FROM {self.user_table} WHERE UserID='{userid}'; """)
@@ -133,6 +151,7 @@ class BibleDB:
             cur.close()
 
     def update_story_id(self, userid, storyid):
+        self.check_connection()
         cur = self.con.cursor()
         cur.execute(
         f"""SELECT * FROM {self.user_table} WHERE UserID='{userid}'; """)
@@ -146,6 +165,7 @@ class BibleDB:
         cur.close()
 
     def update_finished(self, userid, finished:int):
+        self.check_connection()
         cur = self.con.cursor()
         cur.execute(
         f"""SELECT * FROM {self.user_table} WHERE UserID='{userid}'; """)
@@ -164,6 +184,7 @@ class BibleDB:
         :param str user_id: User ID
         :return int: current retry_count, return 0 if not found this user id
         """
+        self.check_connection()
         cur = self.con.cursor()
         cur.execute(
         f"""SELECT RetryCount, Finished FROM {self.user_table} WHERE UserID='{userid}'; """)
@@ -176,6 +197,7 @@ class BibleDB:
             return 0
 
     def clear_retry_count(self, userid):
+        self.check_connection()
         cur = self.con.cursor()
         cur.execute(
         f"""SELECT * FROM {self.user_table} WHERE UserID='{userid}'; """)
@@ -189,6 +211,7 @@ class BibleDB:
         cur.close()
 
     def increase_1_retry_count(self, userid):
+        self.check_connection()
         cur = self.con.cursor()
         cur.execute(
         f"""SELECT * FROM {self.user_table} WHERE UserID='{userid}'; """)
@@ -203,6 +226,7 @@ class BibleDB:
         cur.close()
 
     def check_selection_exist(self, userid:str, storyid:int):
+        self.check_connection()
         cur = self.con.cursor()
         cur.execute(
         f"""SELECT * FROM {self.selection_table} WHERE UserID='{userid}' AND CurStoryID={storyid}; """)
@@ -217,6 +241,7 @@ class BibleDB:
         :param str storyid: User ID
         :return str: current selection value, return None if not found
         """
+        self.check_connection()
         cur = self.con.cursor()
         cur.execute(
         f"""SELECT CurrentValue FROM {self.selection_table} WHERE UserID='{userid}' AND CurStoryID={storyid}; """)
@@ -229,6 +254,7 @@ class BibleDB:
             return None
 
     def upsert_selection_value(self, userid:str, storyid:int, value:str):
+        self.check_connection()
         cur = self.con.cursor()
         cur.execute(
         f"""SELECT CurrentValue FROM {self.selection_table} WHERE UserID='{userid}' AND CurStoryID={storyid};""")

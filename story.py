@@ -481,7 +481,7 @@ class Question1(Story):
                     return False, [TextSendMessage(text=self.reply_messages_wrong[2])]
 
             # correct answer
-            return False, [TextSendMessage(text=msg) for msg in self.post_messages]
+            return False, self.post_messages
         return False, [TextSendMessage(text=self.reply_messages_wrong[3])]
 
 
@@ -870,7 +870,7 @@ class Question5(Story):
             return True, []
 
         if self.ans == ans:
-            return False, [TextSendMessage(text=msg) for msg in self.post_messages]
+            return False, self.post_messages
 
         elif ans == '以利沙':
             return False, [TextSendMessage(text=self.reply_messages_wrong[0])]
@@ -1048,7 +1048,7 @@ class Question6_b_1(Story):
 
         selection_value = db.get_selection_value_by_userid_and_storyid(
             userid=self.userid, storyid=620)  # storyid is from the previous story, which id = 620
-        if ans == 'anna' or ans == 'Anna':
+        if ans.lower() == 'anna':
             return False, [
                 TextSendMessage(text='我問問看！嗯嗯他說答對了！', sender=None),
                 TextSendMessage(
